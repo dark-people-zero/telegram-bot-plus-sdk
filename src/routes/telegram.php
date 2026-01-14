@@ -3,8 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use DarkPeople\TelegramBot\Http\Controllers\WebhookController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
-foreach (config("telegram.bots") as $bot => $config) {
+
+foreach (Config::get("telegram.bots", []) as $bot => $config) {
     $webhookUrl = data_get($config, 'webhook_url');
     $path = null;
     if(!Str::isUrl($webhookUrl, ["http", "https"])) {

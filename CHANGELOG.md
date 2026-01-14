@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.1] - 2026-01-14
+
+### Changed
+- Replaced `config('telegram.bots')` with `Config::get('telegram.bots', [])`
+  in `routes/telegram.php` for improved safety and explicit default handling.
+
+
 ## [3.0.0] - 2026-01-14
 
 ### ⚠️ Breaking Changes
