@@ -1,0 +1,67 @@
+<?php
+
+namespace {{ namespace }};
+
+use DarkPeople\TelegramBot\Commands\Contracts\PlusCommandMeta;
+use DarkPeople\TelegramBot\Commands\Concerns\HasPlusCommandMeta;
+use Telegram\Bot\Commands\Command;
+
+final class {{ class }} extends Command implements PlusCommandMeta
+{
+    use HasPlusCommandMeta;
+
+    /**
+     * Telegram command name used by irazasyed/telegram-bot-sdk.
+     * Example: "start", "help".
+     */
+    protected string $name = '{{ sdk_name }}';
+
+    /**
+     * Command description shown by Telegram (if you use setMyCommands).
+     */
+    protected string $description = '{{ description }}';
+
+    /**
+     * Opt-in auto register during scan/boot.
+     * Default false (safe). Set true to enable auto registration.
+     *
+     * @var bool
+     */
+    public bool $autoRegister = false;
+
+    /**
+     * Target bot(s) for auto registration.
+     * - null: all bots
+     * - string: one bot name
+     * - array: multiple bot names
+     *
+     * @var string|array|null
+     */
+    public string|array|null $forBot = null;
+
+    /**
+     * Optional groups for organizing commands (used by compiler/merger if applicable).
+     *
+     * @var array|null
+     */
+    public ?array $groups = null;
+
+    /**
+     * Optional alias key to share/override this command in compiled config.
+     *
+     * @var string|null
+     */
+    public ?string $sharedAs = null;
+
+    /**
+     * Handle the incoming Telegram command.
+     *
+     * NOTE:
+     * - Use $this->getUpdate() / $this->getArguments() if you need SDK helpers.
+     * - Keep heavy operations reasonable (this runs at runtime).
+     */
+    public function handle(): void
+    {
+        // TODO: Implement your command logic here.
+    }
+}

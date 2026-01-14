@@ -1,0 +1,36 @@
+{
+    "name": "dark-people/telegram-bot-plus-sdk",
+    "description": "Telegram Bot SDK with advanced middleware and command authoring for Laravel",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dark People",
+            "email": "dark.people.zero@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "irazasyed/telegram-bot-sdk": "^3.0",
+        "illuminate/support": "9 - 12"
+    },
+    "autoload": {
+        "psr-4": {
+            "DarkPeople\\TelegramBot\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "DarkPeople\\TelegramBot\\Provider\\TelegramBotRouteServiceProvider",
+                "DarkPeople\\TelegramBot\\Provider\\TelegramBotServiceProvider"
+            ],
+            "aliases": {
+                "TelegramBot": "DarkPeople\\TelegramBot\\Facades\\TelegramBot"
+            }
+        }
+    },
+
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

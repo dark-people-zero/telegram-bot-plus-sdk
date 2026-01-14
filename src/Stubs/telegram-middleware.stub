@@ -1,0 +1,53 @@
+<?php
+
+namespace {{ namespace }};
+
+use DarkPeople\TelegramBot\Middleware\Contracts\PlusMiddlewareMeta;
+use DarkPeople\TelegramBot\Middleware\Contracts\TelegramMiddleware;
+use DarkPeople\TelegramBot\Middleware\Concerns\HasPlusMiddlewareMeta;
+use DarkPeople\TelegramBot\Support\TelegramContext;
+
+final class {{ class }} implements TelegramMiddleware, PlusMiddlewareMeta
+{
+    use HasPlusMiddlewareMeta;
+
+    /**
+     * Required: list of events this middleware should run on.
+     * Example: ['message', 'callback_query'].
+     *
+     * If empty, this middleware will not be compiled/applied.
+     *
+     * @var array
+     */
+    public array $events = [];
+
+    /**
+     * Optional: apply only for specific bot name.
+     *
+     * @var string|null
+     */
+    public ?string $forBot = null;
+
+    /**
+     * Optional: apply only for specific commands (only when event is "command").
+     * - null: not command-specific
+     * - array: list of command names (without "/")
+     *
+     * @var array|null
+     */
+    public ?array $commands = null;
+
+    /**
+     * Middleware handler.
+     *
+     * Return:
+     * - true  => continue to next middleware / command handler
+     * - false => stop execution (BotsManagerPlus will stop the pipeline)
+     */
+    public function handle(TelegramContext $context): bool
+    {
+        // TODO: Implement your middleware logic here.
+
+        return true;
+    }
+}
