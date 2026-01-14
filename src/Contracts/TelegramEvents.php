@@ -1,6 +1,6 @@
 <?php
 
-namespace Packages\DarkPeople\TelegramBot\Src\Contracts;
+namespace DarkPeople\TelegramBot\Src\Contracts;
 
 final class TelegramEvents
 {
