@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.0] - 2026-01-14
+
+### ⚠️ Breaking Changes
+- Changed `TelegramEvents` namespace to remove the extra `Src` segment:
+  - **Before**: `DarkPeople\TelegramBot\Src\Contracts\TelegramEvents`
+  - **After**:  `DarkPeople\TelegramBot\Contracts\TelegramEvents`
+
+  Consumers must update imports (`use` statements) accordingly.
+
+### Fixed
+- Updated `MiddlewareCompiler` to reference the new `TelegramEvents` namespace.
+- Fixed PSR-4 autoload compliance by aligning namespaces with directory structure.
+
+
 ## [2.0.1] - 2026-01-14
 
 ### Fixed
