@@ -38,7 +38,7 @@ Library ini dirancang untuk:
 ## 📦 Instalasi
 
 ```bash
-composer require darkpeople/telegram-bot-plus
+composer require dark-people/telegram-bot-plus-sdk
 ```
 
 ## 🚀 Publish config (opsional):

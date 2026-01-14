@@ -39,7 +39,7 @@ Designed for:
 ## 📦 Installation
 
 ```bash
-composer require darkpeople/telegram-bot-plus
+composer require dark-people/telegram-bot-plus-sdk
 ```
 
 Optional config publish:
