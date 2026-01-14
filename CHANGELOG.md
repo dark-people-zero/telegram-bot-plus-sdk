@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.0.3] - 2026-01-15
+
+### Changed
+- Updated the sample configuration to improve clarity and provide more accurate examples.
+
+
 ## [3.0.1] - 2026-01-14
 
 ### Changed

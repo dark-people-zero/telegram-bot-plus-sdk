@@ -156,10 +156,10 @@ return [
             // \App\Telegram\Middleware\LogMiddleware::class,
 
             // Form 2: array rule (global only)
-            [
-                // 'class' => \App\Telegram\Middleware\AuthMiddleware::class,
-                // 'forBot' => 'mybot',
-            ],
+            // [
+            //     'class' => \App\Telegram\Middleware\AuthMiddleware::class,
+            //     'forBot' => 'mybot',
+            // ],
         ],
 
         'command' => [
@@ -167,10 +167,10 @@ return [
                 // \App\Telegram\Middleware\AuthMiddleware::class,
             ],
             'start' => [
-                [
-                    // 'class' => \App\Telegram\Middleware\StartOnlyMiddleware::class,
-                    // 'forBot' => ['mybot', 'mySecondBot'],
-                ],
+                // [
+                //     'class' => \App\Telegram\Middleware\StartOnlyMiddleware::class,
+                //     'forBot' => ['mybot', 'mySecondBot'],
+                // ],
             ],
         ],
     ],
