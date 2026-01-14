@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [2.0.1] - 2026-01-14
+
+### Fixed
+- Fixed an internal reference in `MiddlewareCompiler` that still used the legacy
+  `Packages\DarkPeople\TelegramBot\Src\Contracts\TelegramEvents` namespace.
+  This prevented the package from booting correctly after upgrading to v2.0.0.
+
+
 ## [2.0.0] - 2026-01-14
 
 ### ⚠️ Breaking Changes

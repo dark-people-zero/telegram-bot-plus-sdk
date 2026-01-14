@@ -7,7 +7,7 @@ namespace DarkPeople\TelegramBot\Middleware\Compile;
 use DarkPeople\TelegramBot\Middleware\Authoring\AuthoringMiddlewareConfig;
 use DarkPeople\TelegramBot\Middleware\Authoring\AuthoringMiddlewareRule;
 use DarkPeople\TelegramBot\Middleware\Scan\DiscoveredMiddleware;
-use Packages\DarkPeople\TelegramBot\Src\Contracts\TelegramEvents;
+use DarkPeople\TelegramBot\Src\Contracts\TelegramEvents;
 use RuntimeException;
 
 final class MiddlewareCompiler
