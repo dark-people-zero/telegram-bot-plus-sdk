@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.2] - 2026-01-16
+
+### Changed
+
+- Refactored `HasPlusMiddlewareMeta` to be a method-only trait.
+- Removed property definitions from `HasPlusMiddlewareMeta` and resolved meta values dynamically from class properties when available.
+- This allows middleware classes to define their own meta properties (`$events`, `$forBot`, `$commands`) without property conflicts.
+
+### Notes
+
+- Middleware classes using `HasPlusMiddlewareMeta` must now define the corresponding properties themselves if they rely on property-based configuration.
+
+
 ## [3.1.1] - 2026-01-16
 
 ### Fixed
