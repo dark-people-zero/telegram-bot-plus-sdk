@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [3.1.2] - 2026-01-16
 
+### Fixed
+
+- Updated `TelegramBot::handler()` invocation to pass the incoming request payload.
+- Prevented runtime errors caused by calling `handler()` without the required argument.
+
+## [3.1.2] - 2026-01-16
+
 ### Changed
 
 - Refactored `HasPlusMiddlewareMeta` to be a method-only trait.

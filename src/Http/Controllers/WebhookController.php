@@ -12,7 +12,7 @@ final class WebhookController
         // telegram-bot-sdk akan baca update dari request
         // dan jalankan command handler sesuai config telegram.php
         // Telegram::commandsHandler(true);
-        TelegramBot::handler();
+        TelegramBot::handler($request);
         return response()->json(['ok' => true]);
     }
 }
