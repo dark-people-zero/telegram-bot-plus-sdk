@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.5] - 2026-01-16
+
+### Fixed
+
+- Prevented `Property [text] does not exist on this collection instance` by safely reading `message.text` when the message payload is an empty `Collection`.
+- Improved robustness of message text extraction for non-text / non-message updates.
+
 ## [3.1.4] - 2026-01-16
 
 ### Fixed

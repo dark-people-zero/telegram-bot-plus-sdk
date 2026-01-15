@@ -33,7 +33,7 @@ final class TelegramContext
             && method_exists($this->message, 'hasCommand')
             && $this->message->hasCommand() === true;
 
-        $this->text = is_object($this->message) ? ($this->message?->text ?? null) : null;
+        $this->text = data_get($this->message, 'text');
 
         $this->commandName = null;
         $this->arguments = null;
