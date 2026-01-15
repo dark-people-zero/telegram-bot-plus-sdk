@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.1] - 2026-01-16
+
+### Fixed
+- Aligned `HasPlusMiddlewareMeta::forBot()` return type and property definition with the `PlusMiddlewareMeta` contract (`string|array|null`) to prevent type incompatibility during middleware composition.
+
 ## [3.1.0] - 2026-01-15
 
 ### Added
