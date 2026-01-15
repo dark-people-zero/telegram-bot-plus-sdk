@@ -9,6 +9,8 @@ use DarkPeople\TelegramBot\Artisan\WebhookCommand;
 use DarkPeople\TelegramBot\BotsManagerPlus;
 use DarkPeople\TelegramBot\Commands\Compile\CommandConfigBuilder;
 use DarkPeople\TelegramBot\Middleware\Compile\MiddlewareConfigBuilder;
+use DarkPeople\TelegramBot\Support\UpdateMeta\Permissions\PermissionCatalog;
+use DarkPeople\TelegramBot\Support\UpdateMeta\Permissions\PermissionResolver;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Telegram\Bot\BotsManager;
@@ -75,6 +77,9 @@ final class TelegramBotServiceProvider extends ServiceProvider implements Deferr
             return (new BotsManagerPlus($botsManager));
         });
         $this->app->alias(BotsManagerPlus::class, 'telegram-bot');
+
+        $this->app->singleton(PermissionCatalog::class, fn () => new PermissionCatalog());
+        $this->app->singleton(PermissionResolver::class, fn ($app) => new PermissionResolver($app->make(PermissionCatalog::class)));
     }
 
     /**

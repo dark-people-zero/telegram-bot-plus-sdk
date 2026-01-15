@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.0] - 2026-01-15
+
+### Added
+- Introduced `TelegramUpdateMeta` as a per-update analyzed metadata object (actor, room, action, before/after change, and permissions).
+- Added `TelegramUpdateAnalyzer` to build `TelegramUpdateMeta` from the incoming update in a deterministic, fast way.
+- Added permissions layer:
+  - `PermissionCatalog` (permission keys + UI mapping + grouping)
+  - `PermissionResolver` (resolves permissions by source and produces `PermissionBag`)
+- Container bindings:
+  - `TelegramBotServiceProvider` now registers `PermissionCatalog` and `PermissionResolver`.
+  - `BotsManagerPlus` now creates `TelegramUpdateAnalyzer` and registers `TelegramUpdateMeta` per update.
+
+### Notes
+- `TelegramUpdateMeta` is designed to be consumed by middleware/commands/services via dependency injection (constructor injection recommended).
+- No network calls are performed during analysis/resolution (fast and deterministic).
+
+
 ## [3.0.3] - 2026-01-15
 
 ### Changed

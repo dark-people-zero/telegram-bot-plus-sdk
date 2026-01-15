@@ -5,7 +5,10 @@ namespace DarkPeople\TelegramBot;
 use DarkPeople\TelegramBot\Support\BotNameResolver;
 use DarkPeople\TelegramBot\Support\StandardWebhookValidator;
 use DarkPeople\TelegramBot\Support\TelegramContext;
+use DarkPeople\TelegramBot\Support\UpdateMeta\TelegramUpdateAnalyzer;
+use DarkPeople\TelegramBot\Support\UpdateMeta\TelegramUpdateMeta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\BotsManager;
 
@@ -20,7 +23,7 @@ final class BotsManagerPlus
 
     public function handler(Request $request): void
     {
-        $rootConfig = (array) config('telegram');
+        $rootConfig = (array) Config::get('telegram', []);
 
         // 1) Resolve botName via URL match (validasi standar kamu)
         $botNameResolver = app()->make(BotNameResolver::class);
@@ -47,6 +50,9 @@ final class BotsManagerPlus
 
         $ctx = new TelegramContext($telegram, $update, $botName);
         app()->instance(TelegramContext::class, $ctx);
+
+        $meta = app(TelegramUpdateAnalyzer::class)->analyze($ctx);
+        app()->instance(TelegramUpdateMeta::class, $meta);
 
         // run validasi
         $eventName = $ctx->eventName;

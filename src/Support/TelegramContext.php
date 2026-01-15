@@ -51,5 +51,9 @@ final class TelegramContext
             $this->arguments = $args ?: null;
         }
     }
+
+    public function update(): Update {
+        return $this->update;
+    }
 }
 

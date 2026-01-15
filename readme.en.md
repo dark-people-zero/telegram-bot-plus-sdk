@@ -233,6 +233,62 @@ Webhook handler:
 TelegramBot::handler($request);
 ```
 
+## TelegramUpdateMeta (Update Metadata)
+
+This package provides `TelegramUpdateMeta`, a per-update metadata object that is built from the incoming Telegram update and registered into the Laravel container for the current update lifecycle.
+
+It helps you answer questions like:
+- Who is the actor (member/admin/bot)?
+- What room type is this (group/supergroup/channel)?
+- What action happened (message/join/leave/promoted/restricted/etc)?
+- What changed (before/after) when Telegram provides old/new data?
+- What permissions are available (by source + effective)?
+
+### How it works
+
+During update handling:
+- A `TelegramUpdateAnalyzer` analyzes the current update (`TelegramContext`) and produces `TelegramUpdateMeta`.
+- The resulting `TelegramUpdateMeta` is bound into the container (per update).
+- Permissions are resolved using:
+  - `PermissionCatalog` (permission keys + UI/group mapping)
+  - `PermissionResolver` (builds `PermissionBag`: permissions by source + effective permissions)
+
+### Consuming TelegramUpdateMeta
+
+Recommended: constructor injection (works for commands, middleware, services).
+
+```php
+use DarkPeople\TelegramBot\Support\TelegramContext;
+use DarkPeople\TelegramBot\Support\UpdateMeta\TelegramUpdateMeta;
+
+final class MyCommand extends Command
+{
+    public function __construct(
+        protected TelegramContext $ctx,
+        protected TelegramUpdateMeta $meta,
+    ) {}
+
+    public function handle()
+    {
+        $action = $this->meta->action();
+        $roomType = $this->meta->room()->roomType;
+        $isAdmin = $this->meta->actor()->isAdmin();
+
+        // Permission check (effective)
+        $canSend = $this->meta->permissions()->can('can_send_messages');
+    }
+}
+```
+
+### PermissionBag (resolved permissions)
+`TelegramUpdateMeta->permissions()` returns a `PermissionBag`:
+
+- `effective()` final permissions
+- `fromSource($source)` permissions per source
+- `can($key)` convenience method
+
+Tip: some UI permissions are grouped (e.g. "Send Media") while Telegram Bot API uses granular keys. `PermissionCatalog` contains UI/group mapping metadata to help produce user-friendly messages.
+
 
 ## 🏁 Conclusion
 

@@ -271,6 +271,111 @@ Atau untuk webhook:
 TelegramBot::handler($request);
 ```
 
+## TelegramUpdateMeta (Metadata Update Telegram)
+Mulai versi **v3.1.0**, package ini menyediakan `TelegramUpdateMeta`, yaitu objek metadata hasil analisis dari setiap update Telegram yang masuk.
+
+`TelegramUpdateMeta` dirancang untuk menjawab pertanyaan seperti:
+
+- Siapa actor yang melakukan aksi? (member / admin / bot)
+- Aksi apa yang terjadi? (pesan, join, leave, promote, restrict, dll)
+- Di room apa update terjadi? (group / supergroup / channel)
+- Apakah ada perubahan data (before / after)?
+- Permission apa saja yang tersedia dan efektif?
+
+Objek ini **dibuat per update** dan **di-bind ke Laravel container**, sehingga bisa di-consume dengan dependency injection di:
+
+- Command
+- Middleware
+- Service lain
+
+### Cara Kerja Singkat
+
+Alur saat update Telegram diproses:
+- `TelegramContext` dibuat untuk update yang sedang diproses.
+- `TelegramUpdateAnalyzer` menganalisis update tersebut.
+- Hasil analisis disimpan sebagai `TelegramUpdateMeta`.
+- `TelegramUpdateMeta` di-register ke container (per update).
+- Middleware / Command dapat langsung menggunakannya.
+
+Semua proses ini:
+- ✅ cepat
+- ✅ deterministik
+- ❌ tanpa network call tambahan
+
+### Menggunakan TelegramUpdateMeta
+
+Disarankan menggunakan **constructor injection**.
+```php
+use DarkPeople\TelegramBot\Support\TelegramContext;
+use DarkPeople\TelegramBot\Support\UpdateMeta\TelegramUpdateMeta;
+
+class MyCommand extends Command
+{
+    public function __construct(
+        protected TelegramContext $context,
+        protected TelegramUpdateMeta $meta,
+    ) {}
+
+    public function handle()
+    {
+        $action   = $this->meta->action();
+        $roomType = $this->meta->room()->roomType;
+        $isAdmin  = $this->meta->actor()->isAdmin();
+
+        if (! $this->meta->permissions()->can('can_send_messages')) {
+            // user tidak diizinkan mengirim pesan
+        }
+    }
+}
+```
+### Sistem Permission
+### PermissionCatalog
+
+`PermissionCatalog` adalah kamus **permission Telegram** yang berisi:
+- daftar permission key (API)
+- grouping sesuai UI Telegram (misalnya "Kirim Media")
+- label UI (Bahasa Inggris & Indonesia)
+- scope permission:
+  - `member` → pengaturan permission anggota
+  - `admin` → hak admin
+
+Class ini **tidak melakukan pengecekan**, hanya mendefinisikan:
+
+>*"Permission apa saja yang ada dan bagaimana menjelaskannya ke user."*
+
+### PermissionResolver & PermissionBag
+
+`PermissionResolver` menggunakan data dari update Telegram untuk menghasilkan `PermissionBag`, yang berisi:
+
+- permission per sumber:
+  - chat permissions
+  - status member
+  - admin rights
+- permission efektif (final)
+
+`PermissionBag` dapat diakses melalui:
+```php
+$permissions = $meta->permissions();
+
+$permissions->can('can_send_messages');
+$permissions->effective();
+$permissions->fromSource('chat_permissions');
+```
+### Catatan Penting
+
+- `TelegramUpdateMeta` bukan policy engine.
+- Ia menyediakan data yang dibutuhkan untuk membangun:
+  - rule
+  - guard
+  - policy
+  - middleware keputusan
+
+Dengan kata lain:
+
+>**Meta + Resolver = data**<br>
+**Keputusan = di tangan aplikasi kamu**
+
+
 ## 🏁 Penutup
 
 Telegram Bot Plus SDK dibuat untuk:
