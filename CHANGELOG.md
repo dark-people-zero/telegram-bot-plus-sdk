@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.4] - 2026-01-16
+
+### Fixed
+
+- Safely accessed optional `message.text` using the nullsafe operator to prevent errors when the message payload is missing or not an object.
+- Improved robustness when handling non-text Telegram updates (e.g. callbacks, service messages).
+
 ## [3.1.3] - 2026-01-16
 
 ### Fixed
