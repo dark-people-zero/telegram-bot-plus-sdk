@@ -16,11 +16,7 @@ final class TelegramUpdateAnalyzer
 
     public function analyze(TelegramContext $ctx): TelegramUpdateMeta
     {
-        $update = $this->get($ctx, 'update', null); // best-effort; depends on your TelegramContext API
-        if (!$update) {
-            // fallback: if your TelegramContext exposes update via method
-            $update = method_exists($ctx, 'update') ? $ctx->update() : null;
-        }
+        $update = $ctx->update->all();
 
         $action = $this->detectAction($update);
 

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.6] - 2026-01-16
+
+### Changed
+
+- **TelegramUpdateAnalyzer**
+  - Refactored update retrieval to rely directly on `TelegramContext` update object.
+  - Removed fallback logic and best-effort access.
+  - Update data is now obtained via:
+  ```php
+  $update = $ctx->update->all();
+  ```
+  - Improves consistency, readability, and enforces the finalized `TelegramContext` contract.
+
 ## [3.1.5] - 2026-01-16
 
 ### Fixed
