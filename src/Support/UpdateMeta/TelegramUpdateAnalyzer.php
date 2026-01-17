@@ -7,6 +7,7 @@ use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\ActorMeta;
 use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\RoomMeta;
 use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\ChangeMeta;
 use DarkPeople\TelegramBot\Support\TelegramContext;
+use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\TargetMeta;
 
 final class TelegramUpdateAnalyzer
 {
@@ -19,6 +20,7 @@ final class TelegramUpdateAnalyzer
         $update = $ctx->update->all();
 
         $action = $this->detectAction($update);
+        $target = $this->extractTarget($update);
 
         $room = $this->extractRoom($update);
         $actor = $this->extractActor($update, $room);
@@ -30,6 +32,7 @@ final class TelegramUpdateAnalyzer
         return new TelegramUpdateMeta(
             action: $action,
             actor: $actor,
+            target: $target,
             room: $room,
             change: $change,
             permissions: $permissions,
@@ -175,6 +178,67 @@ final class TelegramUpdateAnalyzer
             type: 'unknown',
             role: 'unknown',
             raw: [],
+        );
+    }
+
+    protected function extractTarget(mixed $update) : TargetMeta {
+        // Actor inference based on update type
+        $type = $this->detectUpdateType($update);
+        $data = [];
+
+        
+        if (in_array($type, ['chat_member', 'my_chat_member'], true)) {
+            $data[] = $this->get($update, "{$type}.new_chat_member.user", []);
+        }
+        
+        if($type == "message") {
+            $message = $update["message"];
+            if (!empty($message['new_chat_members']) && is_array($message['new_chat_members'])) {
+                $data = $this->get($update, "{$type}.new_chat_members", []);
+            } elseif (isset($message["left_chat_member"])) {
+                $data[] = $this->get($update, "{$type}.left_chat_member", []);
+            } elseif(isset($message["pinned_message"]["from"])) {
+                $data[] = $this->get($update, "{$type}.pinned_message.from", []);
+            }
+        }
+
+        if ($type == "chat_join_request") {
+            $data[] = $this->get($update, "{$type}.from", []);
+        }
+
+        $data = array_filter($data, fn($e) => !empty($e));
+
+        if (count($data) == 0) {
+            return new TargetMeta(
+                id: null,
+                is_bot: false,
+                first_name: null,
+                last_name: null,
+                raw: [],
+                all: []
+            );
+        }
+
+        $data = array_map(function($e) {
+            return new TargetMeta(
+                id: $this->get($e, "id", null),
+                is_bot: $this->get($e, "is_bot", false),
+                first_name: $this->get($e, "first_name", null),
+                last_name: $this->get($e, "first_name", null),
+                raw: $e,
+                all: []
+            );
+        }, $data);
+
+        $first = $data[0];
+
+        return new TargetMeta(
+            id: $first->id,
+            is_bot: $first->is_bot,
+            first_name: $first->first_name,
+            last_name: $first->last_name,
+            raw: $first->raw,
+            all: $data
         );
     }
 

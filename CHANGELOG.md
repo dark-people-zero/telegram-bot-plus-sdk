@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.7] - 2026-01-16
+
+### Added
+
+- `TargetMeta`
+  - New metadata class to represent the _target_ of a Telegram update.
+  - Encapsulates information about the affected user(s).
+- `TelegramUpdateMeta`
+  - Added `target` property containing an instance of `TargetMeta`.
+- `TelegramUpdateAnalyzer`
+  - Added `extractTarget()` method.
+  - Analyzer now detects and populates target metadata during update analysis.
+
+### Notes
+
+- `target` represents _who is affected by the action_, not the actor.
+- Target detection follows Telegram Bot API update structures (chat member updates, join/leave events, etc.).
+- For updates without a meaningful target, `target` will be `null`.
+
+
 ## [3.1.6] - 2026-01-16
 
 ### Changed
