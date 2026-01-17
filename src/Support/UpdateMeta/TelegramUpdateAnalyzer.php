@@ -109,7 +109,7 @@ final class TelegramUpdateAnalyzer
 
         if ($update->message) {
             $message = $update->message;
-            if ($message->newChatMembers) return TargetMeta::fromUser($message->newChatMembers);
+            if ($message->newChatMembers) return TargetMeta::fromUser($message->getNewChatMembers()->all());
             if ($message->leftChatMember) return TargetMeta::fromUser([$message->leftChatMember]);
             if ($message->pinnedMessage && $message->pinnedMessage->from) return TargetMeta::fromUser([$message->pinnedMessage->from]);
         }

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.2.1] - 2026-01-16
+
+### Fixed
+
+- **TargetMeta (newChatMembers handling)**
+  - Normalized `newChatMembers` input to always pass an array of `User` objects.
+  - Replaced direct property access with `getNewChatMembers()->all()` to ensure consistent `User[]` payload for `TargetMeta::fromUser()`.
+
 ## [3.2.0] - 2026-01-16
 ### Changed
 
