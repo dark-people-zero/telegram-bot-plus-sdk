@@ -31,7 +31,7 @@ final class TelegramUpdateAnalyzer
 
         $change = $this->extractChange();
 
-        $permissions = $this->permissionResolver->resolve($ctx, $actor, $room, $change);
+        $permissions = $this->permissionResolver->resolve($ctx, $actor, $room, $change, $target);
 
         return new TelegramUpdateMeta(
             action: $action,

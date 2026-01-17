@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.3.0] - 2026-01-16
+
+### Changed
+
+- Updated `TelegramUpdateAnalyzer::analyze()` to pass `TargetMeta` into `$this->permissionResolver->resolve()` instead of not providing target metadata.
+
+- Updated `PermissionResolver::resolve()` to forward `TargetMeta` to `mergeEffective()` instead of `ChangeMeta`.
+
+- Refactored `PermissionResolver::mergeEffective()` to derive permission status from `$target->role` instead of `$meta->after->status`.
+
+### Notes
+
+- This change aligns permission resolution with target-based role evaluation and improves consistency across permission-related components.
+
+
 ## [3.2.3] - 2026-01-16
 
 ### Fixed

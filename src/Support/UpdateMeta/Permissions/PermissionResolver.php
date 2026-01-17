@@ -7,6 +7,7 @@ use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\RoomMeta;
 use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\ChangeMeta;
 use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\PermissionBag;
 use DarkPeople\TelegramBot\Support\TelegramContext;
+use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\TargetMeta;
 use Telegram\Bot\Objects\Chat;
 use Telegram\Bot\Objects\Update;
 
@@ -31,6 +32,7 @@ final class PermissionResolver
         ActorMeta $actor,
         RoomMeta $room,
         ?ChangeMeta $change,
+        ?TargetMeta $target,
     ): PermissionBag {
         // Keys applicable for this room type
         $keys = $this->keysForRoomType($room->type);
@@ -67,7 +69,7 @@ final class PermissionResolver
             $bySource[PermissionSource::ADMIN_PROPERTIES] = $this->fillKeys($adminKeys, $adminProps);
         }
 
-        $effective = $this->mergeEffective($keys, $bySource, $actor, $change);
+        $effective = $this->mergeEffective($keys, $bySource, $actor, $target);
 
         return new PermissionBag(
             catalogKeys: $keys,
@@ -107,10 +109,10 @@ final class PermissionResolver
      *
      * Also handles statuses: left/kicked => force most permissions false.
      */
-    protected function mergeEffective(array $keys, array $bySource, ActorMeta $actor, ChangeMeta $meta): array
+    protected function mergeEffective(array $keys, array $bySource, ActorMeta $actor, TargetMeta $target): array
     {
         $effective = [];
-        $status = $meta->after->status;
+        $status = $target->role;
 
         $isAdminish = $actor->isAdmin();
 

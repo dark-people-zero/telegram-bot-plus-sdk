@@ -11,7 +11,7 @@ final class TargetMeta extends User
 
     public static function fromUser(array $user, ?string $role = null) : self {
         $target = new self($user[0]->toArray());
-        $target->role = $role;
+        $target->role = $role ?? 'unknown';
         $target->all = $user;
         
         return $target;
