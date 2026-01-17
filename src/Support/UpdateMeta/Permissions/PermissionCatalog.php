@@ -50,7 +50,7 @@ final class PermissionCatalog
     public function keyDefinitions(): array
     {
         $memberRooms = [self::ROOM_GROUP, self::ROOM_SUPERGROUP];
-
+        
         return [
             // --------------------
             // MEMBER (ChatPermissions)
@@ -65,6 +65,15 @@ final class PermissionCatalog
             ],
 
             // Media is grouped in UI, but API is granular:
+            'can_send_media_messages' => [
+                'ui' => true,
+                'scope' => self::SCOPE_MEMBER,
+                'rooms' => $memberRooms,
+                'source' => 'ChatPermissions',
+                'label' => ['en' => 'Send media', 'id' => 'Kirim media'],
+                'hint'  => ['en' => 'Allow users to send text media.', 'id' => 'Izinkan pengguna mengirim pesan media.'],
+            ],
+
             'can_send_photos' => [
                 'ui' => false,
                 'scope' => self::SCOPE_MEMBER,
@@ -151,6 +160,33 @@ final class PermissionCatalog
                 'source' => 'ChatAdministratorRights',
                 'label' => ['en' => 'Change group info', 'id' => 'Ubah info grup'],
                 'hint'  => ['en' => 'Allow changing chat info (title, photo, description).', 'id' => 'Izinkan mengubah info chat (judul, foto, deskripsi).'],
+            ],
+
+            'can_manage_chat' => [
+                'ui' => true,
+                'scope' => self::SCOPE_ADMIN,
+                'rooms' => [self::ROOM_GROUP, self::ROOM_SUPERGROUP, self::ROOM_CHANNEL],
+                'source' => 'ChatAdministratorRights',
+                'label' => ['en' => 'Manage chat', 'id' => 'Kelola chat'],
+                'hint'  => ['en' => 'Allow managing the chat settings and basic administration.', 'id' => 'Izinkan mengelola pengaturan chat dan administrasi dasar.'],
+            ],
+
+            'can_post_messages' => [
+                'ui' => true,
+                'scope' => self::SCOPE_ADMIN,
+                'rooms' => [self::ROOM_CHANNEL],
+                'source' => 'ChatAdministratorRights',
+                'label' => ['en' => 'Post messages', 'id' => 'Kirim postingan'],
+                'hint'  => ['en' => 'Allow posting messages in the channel.', 'id' => 'Izinkan mengirim postingan di channel.'],
+            ],
+
+            'can_edit_messages' => [
+                'ui' => true,
+                'scope' => self::SCOPE_ADMIN,
+                'rooms' => [self::ROOM_CHANNEL],
+                'source' => 'ChatAdministratorRights',
+                'label' => ['en' => 'Edit messages', 'id' => 'Edit pesan'],
+                'hint'  => ['en' => 'Allow editing messages in the channel.', 'id' => 'Izinkan mengedit pesan di channel.'],
             ],
 
             'can_delete_messages' => [

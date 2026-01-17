@@ -2,67 +2,50 @@
 
 namespace DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects;
 
-final class ActorMeta
+use Telegram\Bot\Objects\Chat;
+use Telegram\Bot\Objects\User;
+
+final class ActorMeta extends User
 {
-    public function __construct(
-        public readonly ?int $userId,
-        public readonly ?string $username,
-        public readonly ?string $name,
-        public readonly string $type, // user|bot|sender_chat|unknown
-        public readonly string $role, // creator|administrator|member|restricted|left|kicked|unknown (chat role)
-        public readonly array $raw = [],
-    ) {}
+    public readonly string $type; // user|bot|sender_chat|unknown
+    public readonly string $role; // creator|administrator|member|restricted|left|kicked|unknown (chat role)
+    public readonly ?string $title;
 
-    public static function fromTelegramUser(mixed $user, string $role = 'unknown'): self
+    public static function fromUser(User $user, string $role = "unknown"): self
     {
-        $arr = self::normalize($user);
+        $target = new self();
+        $target->type = $user->isBot === true ? 'bot' : 'user';
+        $target->role = $role ?: 'unknown';
+        $target->title = null;
+        
+        $target->id = $user->id;
+        $target->isBot = $user->isBot;
+        $target->firstName = $user->firstName;
+        $target->lastName = $user->lastName;
+        $target->username = $user->username;
+        $target->languageCode = $user->languageCode;
+        $target->canJoinGroups = $user->canJoinGroups;
+        $target->canReadAllGroupMessages = $user->canReadAllGroupMessages;
+        $target->supportsInlineQueries = $user->supportsInlineQueries;
 
-        $id = $arr['id'] ?? null;
-        $isBot = $arr['is_bot'] ?? null;
-
-        $first = $arr['first_name'] ?? null;
-        $last  = $arr['last_name'] ?? null;
-        $name  = trim(($first ?? '') . ' ' . ($last ?? ''));
-
-        return new self(
-            userId: is_numeric($id) ? (int) $id : null,
-            username: isset($arr['username']) ? (string) $arr['username'] : null,
-            name: $name !== '' ? $name : null,
-            type: $isBot === true ? 'bot' : 'user',
-            role: $role ?: 'unknown',
-            raw: $arr,
-        );
+        return $target;
     }
 
-    public static function fromSenderChat(mixed $senderChat): self
-    {
-        $arr = self::normalize($senderChat);
+    public static function fromSender(Chat $chat) : self {
+        $target = new self();
+        $target->type = 'sender_chat';
+        $target->role = 'unknown';
+        
+        $target->id = $chat->id;
+        $target->firstName = $chat->title;
+        $target->lastName = $chat->lastName;
+        $target->username = $chat->username;
 
-        $id = $arr['id'] ?? null;
+        $target->title = $chat->title;
 
-        return new self(
-            userId: is_numeric($id) ? (int) $id : null,
-            username: isset($arr['username']) ? (string) $arr['username'] : null,
-            name: isset($arr['title']) ? (string) $arr['title'] : null,
-            type: 'sender_chat',
-            role: 'unknown',
-            raw: $arr,
-        );
+        return $target;
     }
 
     public function isBot(): bool { return $this->type === 'bot'; }
     public function isAdmin(): bool { return in_array($this->role, ['administrator', 'creator'], true); }
-
-    private static function normalize(mixed $data): array
-    {
-        if ($data === null) return [];
-        if (is_array($data)) return $data;
-
-        if (is_object($data)) {
-            if (method_exists($data, 'toArray')) return (array) $data->toArray();
-            return json_decode(json_encode($data), true) ?: [];
-        }
-
-        return [];
-    }
 }

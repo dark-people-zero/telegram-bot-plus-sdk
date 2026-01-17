@@ -7,6 +7,8 @@ use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\RoomMeta;
 use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\ChangeMeta;
 use DarkPeople\TelegramBot\Support\UpdateMeta\ValueObjects\PermissionBag;
 use DarkPeople\TelegramBot\Support\TelegramContext;
+use Telegram\Bot\Objects\Chat;
+use Telegram\Bot\Objects\Update;
 
 final class PermissionResolver
 {
@@ -29,16 +31,16 @@ final class PermissionResolver
         ActorMeta $actor,
         RoomMeta $room,
         ?ChangeMeta $change,
-        mixed $update = null,
     ): PermissionBag {
         // Keys applicable for this room type
-        $keys = $this->keysForRoomType($room->roomType);
+        $keys = $this->keysForRoomType($room->type);
 
         // Split keys by scope (member vs admin), because their sources differ.
-        $memberKeys = $this->keysForRoomType($room->roomType, PermissionCatalog::SCOPE_MEMBER);
-        $adminKeys  = $this->keysForRoomType($room->roomType, PermissionCatalog::SCOPE_ADMIN);
+        $memberKeys = $this->keysForRoomType($room->type, PermissionCatalog::SCOPE_MEMBER);
+        $adminKeys  = $this->keysForRoomType($room->type, PermissionCatalog::SCOPE_ADMIN);
 
         $bySource = [];
+        $update = $ctx->update;
 
         // 1) Chat baseline member permissions (ChatPermissions) if present
         $chatPerm = $this->extractChatPermissions($update);
@@ -47,25 +49,25 @@ final class PermissionResolver
         }
 
         // 2) Member status permissions (ChatMemberRestricted.permissions) if present
-        $memberStatusPerm = $this->extractMemberStatusPermissions($update);
+        $memberStatusPerm = $change->after;
         if ($memberStatusPerm) {
-            $bySource[PermissionSource::MEMBER_STATUS] = $this->fillKeys($memberKeys, $memberStatusPerm);
+            $bySource[PermissionSource::MEMBER_STATUS] = $this->fillKeys($memberKeys, $memberStatusPerm->toArray());
         }
 
         // 3) Admin rights (ChatAdministratorRights fields on ChatMemberAdministrator/Creator) if present
-        $adminRights = $this->extractAdminRights($update, $adminKeys);
+        $adminRights = $this->extractAdminRights($change, $adminKeys);
         if ($adminRights) {
             $bySource[PermissionSource::ADMIN_RIGHTS] = $this->fillKeys($adminKeys, $adminRights);
         }
 
         // 4) Admin properties / pseudo keys (e.g. is_anonymous)
-        $adminProps = $this->extractAdminProperties($update);
+        $adminProps = $this->extractAdminRights($change, ['is_anonymous']);
         if ($adminProps) {
             // We only fill keys that exist in catalog; (pseudo) keys are still catalog keys
             $bySource[PermissionSource::ADMIN_PROPERTIES] = $this->fillKeys($adminKeys, $adminProps);
         }
 
-        $effective = $this->mergeEffective($keys, $bySource, $actor, $room, $update);
+        $effective = $this->mergeEffective($keys, $bySource, $actor, $change);
 
         return new PermissionBag(
             catalogKeys: $keys,
@@ -105,10 +107,10 @@ final class PermissionResolver
      *
      * Also handles statuses: left/kicked => force most permissions false.
      */
-    protected function mergeEffective(array $keys, array $bySource, ActorMeta $actor, RoomMeta $room, mixed $update): array
+    protected function mergeEffective(array $keys, array $bySource, ActorMeta $actor, ChangeMeta $meta): array
     {
         $effective = [];
-        $status = $this->extractNewMemberStatus($update);
+        $status = $meta->after->status;
 
         $isAdminish = $actor->isAdmin();
 
@@ -178,35 +180,14 @@ final class PermissionResolver
      * Extract chat.permissions (ChatPermissions) from update (best-effort).
      * @return array<string, mixed>|null
      */
-    protected function extractChatPermissions(mixed $update): ?array
+    protected function extractChatPermissions(Update $update): ?array
     {
-        $chat = $this->get($update, 'message.chat', null)
-            ?? $this->get($update, 'edited_message.chat', null)
-            ?? $this->get($update, 'channel_post.chat', null)
-            ?? $this->get($update, 'edited_channel_post.chat', null)
-            ?? $this->get($update, 'callback_query.message.chat', null)
-            ?? $this->get($update, 'chat_member.chat', null)
-            ?? $this->get($update, 'my_chat_member.chat', null);
-
-        $perm = $this->get($chat, 'permissions', null);
-        $arr = $this->normalize($perm);
-
-        return $arr ?: null;
-    }
-
-    /**
-     * Extract ChatMemberRestricted.permissions from chat_member/my_chat_member.
-     * @return array<string, mixed>|null
-     */
-    protected function extractMemberStatusPermissions(mixed $update): ?array
-    {
-        $new = $this->get($update, 'chat_member.new_chat_member', null)
-            ?? $this->get($update, 'my_chat_member.new_chat_member', null);
-
-        $perm = $this->get($new, 'permissions', null);
-        $arr = $this->normalize($perm);
-
-        return $arr ?: null;
+        $chat = $update->getChat();
+        if ($chat instanceof Chat && $chat->permissions) {
+            return $chat->permissions->toArray();
+        }
+        
+        return null;
     }
 
     /**
@@ -216,115 +197,17 @@ final class PermissionResolver
      * @param string[] $adminKeys
      * @return array<string, mixed>|null
      */
-    protected function extractAdminRights(mixed $update, array $adminKeys): ?array
+    protected function extractAdminRights(ChangeMeta $meta, array $adminKeys): ?array
     {
-        $new = $this->get($update, 'chat_member.new_chat_member', null)
-            ?? $this->get($update, 'my_chat_member.new_chat_member', null);
+        $newChatMember = $meta->after;
 
-        $status = $this->get($new, 'status', null);
-        if (!in_array($status, ['administrator', 'creator'], true)) {
-            return null;
-        }
+        if(!$newChatMember) return null;
 
-        $arr = $this->normalize($new);
-        if (!$arr) return null;
+        $status = $newChatMember->status;
+        
+        if(!in_array($status, ['administrator', 'creator'], true)) return null;
 
-        $rights = [];
-        foreach ($adminKeys as $k) {
-            if (array_key_exists($k, $arr)) {
-                $rights[$k] = $arr[$k];
-            }
-        }
-
-        return $rights ?: null;
+        return $newChatMember->only($adminKeys)->toArray();
     }
 
-    /**
-     * Extract admin-only properties that aren't "ChatAdministratorRights" booleans,
-     * but still relevant in UI (pseudo keys), like: is_anonymous.
-     *
-     * @return array<string, mixed>|null
-     */
-    protected function extractAdminProperties(mixed $update): ?array
-    {
-        $new = $this->get($update, 'chat_member.new_chat_member', null)
-            ?? $this->get($update, 'my_chat_member.new_chat_member', null);
-
-        $status = $this->get($new, 'status', null);
-        if (!in_array($status, ['administrator', 'creator'], true)) {
-            return null;
-        }
-
-        $arr = $this->normalize($new);
-        if (!$arr) return null;
-
-        // Pseudo/UI property
-        $props = [];
-        if (array_key_exists('is_anonymous', $arr)) {
-            $props['is_anonymous'] = $arr['is_anonymous'];
-        }
-
-        return $props ?: null;
-    }
-
-    protected function extractNewMemberStatus(mixed $update): ?string
-    {
-        $new = $this->get($update, 'chat_member.new_chat_member', null)
-            ?? $this->get($update, 'my_chat_member.new_chat_member', null);
-
-        $status = $this->get($new, 'status', null);
-        return is_string($status) ? $status : null;
-    }
-
-    // --- access helpers (array/object hybrid) ---
-
-    protected function get(mixed $data, string $path, mixed $default = null): mixed
-    {
-        if ($data === null) return $default;
-
-        $parts = explode('.', $path);
-        $cur = $data;
-
-        foreach ($parts as $p) {
-            if (is_array($cur)) {
-                if (!array_key_exists($p, $cur)) return $default;
-                $cur = $cur[$p];
-                continue;
-            }
-
-            if (is_object($cur)) {
-                if ($cur instanceof \ArrayAccess && isset($cur[$p])) {
-                    $cur = $cur[$p];
-                    continue;
-                }
-                if (isset($cur->{$p})) {
-                    $cur = $cur->{$p};
-                    continue;
-                }
-                $getter = 'get' . str_replace(' ', '', ucwords(str_replace('_', ' ', $p)));
-                if (method_exists($cur, $getter)) {
-                    $cur = $cur->{$getter}();
-                    continue;
-                }
-                return $default;
-            }
-
-            return $default;
-        }
-
-        return $cur;
-    }
-
-    protected function normalize(mixed $data): array
-    {
-        if ($data === null) return [];
-        if (is_array($data)) return $data;
-
-        if (is_object($data)) {
-            if (method_exists($data, 'toArray')) return (array) $data->toArray();
-            return json_decode(json_encode($data), true) ?: [];
-        }
-
-        return [];
-    }
 }

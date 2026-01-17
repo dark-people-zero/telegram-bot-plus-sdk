@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.2.0] - 2026-01-16
+### Changed
+
+- `TargetMeta`
+  - Refactored to extend/consume `Telegram\Bot\Objects\User` instead of defining all fields manually.
+  - Added `status` (e.g. `member`, `administrator`, `null`).
+  - Added `all` to keep the full user payload (including multi-target cases like `newChatMembers`).
+
+- `RoomMeta`
+  - Refactored to extend/consume `Telegram\Bot\Objects\Chat` instead of defining all fields manually.
+  - Added `threadId`, resolved from `update->getMessage()->getMessageThreadId()`.
+
+- `ActorMeta`
+  - Refactored to extend/consume `Telegram\Bot\Objects\User` instead of defining all fields manually.
+  - Added:
+    - `type` (`user|bot|sender_chat|unknown`)
+    - `role` (`creator|administrator|member|restricted|left|kicked|unknown`)
+    - `title` (only for `sender_chat`)
+    - `fromUser` (clone/copy from user)
+    - `fromSender` (map sender_chat keys needed into user-like meta)
+
+- `ChangeMeta`
+  - `kind` is now optional (default: `unknown`).
+  - `before` and `after` now use `Telegram\Bot\Objects\ChatMember` instead of plain arrays.
+
+- `PermissionResolver`
+  - Refactored to consume data from the SDK `Update` object instead of raw update arrays.
+
+- `TelegramUpdateAnalyzer`
+  - All analyzer methods now consume the SDK `Update` object (no longer reading raw update payload directly).
+
+### Notes
+
+- This release aligns meta/analyzer/resolver layers with irazasyed SDK object model for consistency and reduces manual parsing/normalization.
+- If you previously depended on Meta internal arrays/properties, adapt to the new SDK-based objects and added helper constructors.
+
 ## [3.1.8] - 2026-01-16
 
 ### Added
