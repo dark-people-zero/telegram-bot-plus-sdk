@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.1.8] - 2026-01-16
+
+### Added
+
+- `TargetMeta`
+  - Added `username` field.
+  - Added `is_premium` field.
+  - Target metadata now exposes additional user attributes for richer context and rule evaluation.
+
+### Notes
+- New fields are populated when available from Telegram update payload.
+- Existing behavior remains unchanged for updates that do not provide these attributes.
+
 ## [3.1.7] - 2026-01-16
 
 ### Added

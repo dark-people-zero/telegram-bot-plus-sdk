@@ -9,6 +9,8 @@ final class TargetMeta
         public readonly bool $is_bot,
         public readonly ?string $first_name,
         public readonly ?string $last_name,
+        public readonly ?string $username,
+        public readonly bool $is_premium = false,
         public readonly array $raw = [],
         public readonly array $all = [],
     ) {}

@@ -214,6 +214,8 @@ final class TelegramUpdateAnalyzer
                 is_bot: false,
                 first_name: null,
                 last_name: null,
+                username: null,
+                is_premium: false,
                 raw: [],
                 all: []
             );
@@ -225,6 +227,8 @@ final class TelegramUpdateAnalyzer
                 is_bot: $this->get($e, "is_bot", false),
                 first_name: $this->get($e, "first_name", null),
                 last_name: $this->get($e, "first_name", null),
+                username: $this->get($e, "username", null),
+                is_premium: $this->get($e, "is_premium", false),
                 raw: $e,
                 all: []
             );
@@ -237,6 +241,8 @@ final class TelegramUpdateAnalyzer
             is_bot: $first->is_bot,
             first_name: $first->first_name,
             last_name: $first->last_name,
+            username: $first->username,
+            is_premium: $first->is_premium,
             raw: $first->raw,
             all: $data
         );
