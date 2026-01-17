@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.2.3] - 2026-01-16
+
+### Fixed
+- Fixed an error in `TelegramUpdateAnalyzer::extractRoom()` where `getMessageThreadId()` was called on an `Illuminate\Support\Collection`.
+- `update->getMessage()` returns a Collection, not a Telegram `Message` object; the thread ID is now retrieved safely via Collection key access (`message_thread_id`).
+
 ## [3.2.2] - 2026-01-16
+
 ### Changed
 - **ActorMeta**
   - Updated `fromUser()` to hydrate meta using `new self($user->toArray())` instead of constructing an empty instance.

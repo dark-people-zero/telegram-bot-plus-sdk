@@ -121,7 +121,8 @@ final class TelegramUpdateAnalyzer
     protected function extractRoom(): RoomMeta
     {
         $chat = $this->ctx->update->getChat();
-        $threadId = $this->ctx->update->getMessage()->getMessageThreadId();
+        $message = $this->ctx->update->getMessage();
+        $threadId = $message->get("message_thread_id", null);
 
         if ($chat instanceof Chat) {
             return RoomMeta::fromChat($chat, $threadId);
