@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.2.2] - 2026-01-16
+### Changed
+- **ActorMeta**
+  - Updated `fromUser()` to hydrate meta using `new self($user->toArray())` instead of constructing an empty instance.
+  - Updated `fromSender()` to hydrate meta using an explicit array payload (`id`, `firstName`, etc.) instead of constructing an empty instance.
+  - Improves consistency and ensures inherited `User` fields are populated deterministically.
+
+- **RoomMeta**
+  - Updated `fromChat()` to hydrate meta using new `self($chat->toArray())` instead of constructing an empty instance.
+  - Ensures inherited `Chat` fields are populated from the source chat payload.
+- **TargetMeta**
+  - Updated `fromUser()` to hydrate meta from the first user payload via `new self($user[0]->toArray())` instead of constructing an empty instance.
+  - Aligns target meta initialization with the SDK `User` object model.
+
+### Notes
+- These changes standardize meta factories to initialize instances from SDK object payloads, improving completeness of populated fields.
+
 ## [3.2.1] - 2026-01-16
 
 ### Fixed

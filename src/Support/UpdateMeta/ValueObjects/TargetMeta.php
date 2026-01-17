@@ -10,21 +10,10 @@ final class TargetMeta extends User
     public readonly array $all;
 
     public static function fromUser(array $user, ?string $role = null) : self {
-        $target = new self();
+        $target = new self($user[0]->toArray());
         $target->role = $role;
         $target->all = $user;
         
-        $first = $user[0];
-        $target->id = $first->id;
-        $target->isBot = $first->isBot;
-        $target->firstName = $first->firstName;
-        $target->lastName = $first->lastName;
-        $target->username = $first->username;
-        $target->languageCode = $first->languageCode;
-        $target->canJoinGroups = $first->canJoinGroups;
-        $target->canReadAllGroupMessages = $first->canReadAllGroupMessages;
-        $target->supportsInlineQueries = $first->supportsInlineQueries;
-
         return $target;
     }
 
