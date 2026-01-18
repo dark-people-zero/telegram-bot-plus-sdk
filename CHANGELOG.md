@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.3.1] - 2026-01-16
+### Changed
+- Updated `TargetMeta` to remove `readonly` from `$role` and `$all` properties.
+- Added default values to `TargetMeta` properties: `$role` now defaults to `'unknown'` and `$all` defaults to an empty array.
+- This change prevents uninitialized property access and simplifies permission resolution logic.
+
 ## [3.3.0] - 2026-01-16
 
 ### Changed
