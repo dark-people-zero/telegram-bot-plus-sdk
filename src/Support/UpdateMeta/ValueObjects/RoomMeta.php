@@ -6,7 +6,7 @@ use Telegram\Bot\Objects\Chat;
 
 final class RoomMeta extends Chat
 {
-    public readonly ?int $threadId;
+    public ?int $threadId = null;
 
     public function isGroupLike(): bool { return in_array($this->type, ['group', 'supergroup'], true); }
     public function isChannel(): bool { return $this->type === 'channel'; }

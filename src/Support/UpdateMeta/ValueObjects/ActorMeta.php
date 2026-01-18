@@ -7,9 +7,9 @@ use Telegram\Bot\Objects\User;
 
 final class ActorMeta extends User
 {
-    public readonly string $type; // user|bot|sender_chat|unknown
-    public readonly string $role; // creator|administrator|member|restricted|left|kicked|unknown (chat role)
-    public readonly ?string $title;
+    public string $type = 'unknown'; // user|bot|sender_chat|unknown
+    public string $role = 'unknown'; // creator|administrator|member|restricted|left|kicked|unknown (chat role)
+    public ?string $title = '';
 
     public static function fromUser(User $user, string $role = "unknown"): self
     {

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [3.3.2] - 2026-01-16
+### Changed
+
+- Updated `ActorMeta` to remove `readonly` properties and introduce safe default values:
+  - `$type` now defaults to `'unknown'`
+  - `$role` now defaults to `'unknown'`
+  - `$title` now defaults to an empty string
+- Updated `RoomMeta` to remove `readonly` and allow default initialization:
+  - `$threadId` now defaults to `null`
+  - These changes prevent uninitialized property access and simplify metadata handling across update analysis and permission resolution.
+
+
 ## [3.3.1] - 2026-01-16
 ### Changed
 - Updated `TargetMeta` to remove `readonly` from `$role` and `$all` properties.
