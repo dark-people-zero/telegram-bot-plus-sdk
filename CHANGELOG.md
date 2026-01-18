@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.0.0] - 2026-01-16
+### Changed
+- Changed `TelegramContext` mutable properties by removing `readonly` from derived fields: `eventName`, `text`, `commandName`, `arguments`, `isCommand`, and `message`.
+- Updated constructor-promoted dependencies (`$telegram`, `$update`, `$botName`) to be non-readonly, allowing context mutation when needed.
+- Kept `resolveProperty()` execution in the constructor to populate context fields as before.
+
 ## [3.3.2] - 2026-01-16
 ### Changed
 

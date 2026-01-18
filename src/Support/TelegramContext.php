@@ -8,17 +8,17 @@ use Telegram\Bot\Objects\Update;
 
 final class TelegramContext
 {
-    public readonly ?string $eventName;
-    public readonly ?string $text;
-    public readonly ?string $commandName;
-    public readonly ?array $arguments;
-    public readonly bool $isCommand;
-    public readonly ?object $message;
+    public ?string $eventName;
+    public ?string $text;
+    public ?string $commandName;
+    public ?array $arguments;
+    public bool $isCommand;
+    public ?object $message;
 
     public function __construct(
-        public readonly Api $telegram,
-        public readonly Update $update,
-        public readonly string $botName,
+        public Api $telegram,
+        public Update $update,
+        public string $botName,
     ) {
         $this->resolveProperty();
     }
