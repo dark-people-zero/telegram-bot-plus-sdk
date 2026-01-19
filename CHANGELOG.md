@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.0.3] - 2026-01-16
+### Changed
+
+- Fixed `HasPlusCommandMeta::groups()` to always return an array.
+- Normalized `groups` meta value to fallback to an empty array (`[]`) when the property exists but is null.
+- Improved consistency with `PlusCommandMeta::groups(): array` contract.
+
 ## [4.0.2] - 2026-01-16
 ### Changed
 - Refactored `HasPlusCommandMeta` to remove property declarations from the trait.

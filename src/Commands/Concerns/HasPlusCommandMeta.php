@@ -14,7 +14,7 @@ trait HasPlusCommandMeta
     }
     public function groups(): array
     {
-        return (property_exists($this, "groups") ? $this->groups : []);
+        return (property_exists($this, "groups") ? $this->groups ?? [] : []);
     }
     public function sharedAs(): ?string
     {
