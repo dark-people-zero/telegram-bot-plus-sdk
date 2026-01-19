@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.0.2] - 2026-01-16
+### Changed
+- Refactored `HasPlusCommandMeta` to remove property declarations from the trait.
+- Updated meta accessors (`autoRegister`, `forBot`, `groups`, `sharedAs`) to resolve values dynamically using `property_exists`.
+- Prevented property collision errors when commands define their own meta properties.
+- Kept `PlusCommandMeta` contract behavior unchanged while improving trait composability.
+
 ## [4.0.1] - 2026-01-16
 ### Fixed
 - Fixed `HasPlusCommandMeta::groups()` to always return an array.

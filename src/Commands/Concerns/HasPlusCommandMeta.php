@@ -4,13 +4,20 @@ namespace DarkPeople\TelegramBot\Commands\Concerns;
 
 trait HasPlusCommandMeta
 {
-    public bool $autoRegister = false;
-    public string|array|null $forBot = null;
-    public ?array $groups = null;
-    public ?string $sharedAs = null;
-
-    public function autoRegister(): bool { return (bool) $this->autoRegister; }
-    public function forBot(): string|array|null { return $this->forBot; }
-    public function groups(): array { return $this->groups ?? []; }
-    public function sharedAs(): ?string { return $this->sharedAs; }
+    public function autoRegister(): bool
+    {
+        return (bool) (property_exists($this, "autoRegister") ? $this->autoRegister : false);
+    }
+    public function forBot(): string|array|null
+    {
+        return (property_exists($this, "forBot") ? $this->forBot : null);
+    }
+    public function groups(): array
+    {
+        return (property_exists($this, "groups") ? $this->groups : []);
+    }
+    public function sharedAs(): ?string
+    {
+        return (property_exists($this, "sharedAs") ? $this->sharedAs : null);
+    }
 }
