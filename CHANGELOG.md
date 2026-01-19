@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.0.1] - 2026-01-16
+### Fixed
+- Fixed `HasPlusCommandMeta::groups()` to always return an array.
+- Normalized nullable `$groups` property to an empty array (`[]`) to comply with `PlusCommandMeta::groups(): array` contract.
+- Prevented return type incompatibility errors when implementing `PlusCommandMeta`.
+
 ## [4.0.0] - 2026-01-16
 ### Changed
 - Changed `TelegramContext` mutable properties by removing `readonly` from derived fields: `eventName`, `text`, `commandName`, `arguments`, `isCommand`, and `message`.

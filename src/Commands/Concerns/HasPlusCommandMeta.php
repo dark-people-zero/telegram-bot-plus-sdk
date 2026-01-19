@@ -11,6 +11,6 @@ trait HasPlusCommandMeta
 
     public function autoRegister(): bool { return (bool) $this->autoRegister; }
     public function forBot(): string|array|null { return $this->forBot; }
-    public function groups(): ?array { return $this->groups; }
+    public function groups(): array { return $this->groups ?? []; }
     public function sharedAs(): ?string { return $this->sharedAs; }
 }
