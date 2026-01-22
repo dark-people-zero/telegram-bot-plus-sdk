@@ -7,9 +7,9 @@ use Telegram\Bot\Objects\ChatMember;
 final class ChangeMeta
 {
     public function __construct(
-        public readonly ?string $kind = "unknown", // e.g. chat_member|unknown
-        public readonly ?ChatMember $before = null,
-        public readonly ?ChatMember $after = null,
+        public ?string $kind = "unknown",
+        public ?ChatMember $before = null,
+        public ?ChatMember $after = null,
     ) {}
 
     public function hasBeforeAfter(): bool

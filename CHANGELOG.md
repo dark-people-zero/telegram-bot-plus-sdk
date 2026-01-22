@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.1.0] - 2026-01-17
+
+### Added
+
+* Introduced **Console Command Inspector**:
+
+  * Command discovery & validation layer
+  * Structured resolve result with single execution status
+  * Console-style help output for:
+
+    * root commands
+    * grouped commands
+    * leaf commands
+  * Integrated suggestion system (DidYouMeanSuggester)
+
+* Added **multi-language console renderer**:
+
+  * Markdown-based output
+  * Language resolved via `telegram.console.lang`
+  * Custom language override via `telegram.console.lang_path`
+
+* Added **runtime cache layer** for internal compiled data:
+
+  * Command registry
+  * Middleware configuration
+  * Console interaction metadata
+  * Language dictionaries
+
+* Added **Artisan command to clear Telegram SDK cache**:
+
+  * `php artisan telegram:cache:clear`
+  * Clears all internal Telegram SDK cache keys safely
+
+### Changed
+
+* Command execution flow now relies on `ResolveResult` as the single source of truth.
+* Command authorization is resolved before execution using static `authorize()` hooks.
+* Console help and error rendering are fully decoupled from resolver logic.
+
+### Notes
+
+* This release introduces a structured console inspection layer.
+* No breaking changes for existing commands or middleware.
+* All new features are backward-compatible and opt-in.
+
 ## [4.0.3] - 2026-01-16
 ### Changed
 

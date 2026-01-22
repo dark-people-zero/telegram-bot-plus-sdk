@@ -12,8 +12,8 @@ final class DiscoveredScan
      * @param non-empty-string $sourcePath
      */
     public function __construct(
-        public readonly string $class,
-        public readonly string $sourceType,
-        public readonly string $sourcePath,
+        public string $class,
+        public string $sourceType,
+        public string $sourcePath,
     ) {}
 }

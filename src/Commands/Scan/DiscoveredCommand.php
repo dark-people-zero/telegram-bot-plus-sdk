@@ -13,10 +13,10 @@ final class DiscoveredCommand
      * @param string[]|null $groups
      */
     public function __construct(
-        public readonly DiscoveredScan $scan,
-        public readonly ?array $forBot = null,
-        public readonly ?array $groups = null,
-        public readonly ?string $sharedAs = null,
+        public DiscoveredScan $scan,
+        public ?array $forBot = null,
+        public ?array $groups = null,
+        public ?string $sharedAs = null,
     ) {}
 
     /**

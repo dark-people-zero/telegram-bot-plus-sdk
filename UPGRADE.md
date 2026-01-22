@@ -1,5 +1,68 @@
 # Upgrade Guide
 
+## Upgrade to v4.1.0
+
+Version **v4.1.0** introduces the Console Command Inspector, runtime cache, and a new Artisan command for clearing Telegram SDK cache.
+
+### ✨ New Features
+
+* Console-style command inspection & validation
+
+* Automatic help messages (root / group / command)
+
+* Multi-language console output
+
+* Runtime cache for:
+
+  * command registry
+  * middleware configuration
+  * console metadata
+  * language dictionaries
+
+* New Artisan command:
+
+```bash
+php artisan telegram:cache:clear
+```
+
+### ✅ No Breaking Changes
+
+* Existing commands continue to work.
+* Existing middleware continues to work.
+* No changes to command or middleware signatures.
+
+### ⚙️ Optional Configuration
+
+```php
+'cache' => env('TELEGRAM_CACHE', true),
+
+'console' => [
+    'lang' => env('TELEGRAM_LANG', 'id'),
+    'lang_path' => null,
+],
+```
+
+If omitted, default values will be used.
+
+### 🧹 When to Clear Cache
+
+Run:
+
+```bash
+php artisan telegram:cache:clear
+```
+
+when:
+
+* adding or modifying commands
+* changing middleware
+* updating console language files
+
+### Recommendation
+
+Upgrade to v4.1.0 if you want CLI-like command UX, consistent validation, and faster runtime via caching.
+
+
 ## Upgrade ke v3.1.0
 
 Versi `v3.1.0` menambahkan sistem metadata update dan permission yang lebih terstruktur.

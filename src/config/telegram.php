@@ -1,6 +1,6 @@
 <?php
 
-use Telegram\Bot\Commands\HelpCommand;
+use DarkPeople\TelegramBot\Commands\Help;
 
 return [
     /*
@@ -246,7 +246,7 @@ return [
     | Default: HelpCommand (responds when the user sends /help)
     */
     'commands' => [
-        HelpCommand::class,
+        Help::class,
     ],
 
     /*
@@ -317,6 +317,86 @@ return [
         // 'stop' => \App\Telegram\Commands\StopCommand::class,
         // 'status' => \App\Telegram\Commands\StatusCommand::class,
     ],
+    
+    /**
+     * Enable global runtime cache for the Telegram SDK.
+     *
+     * When enabled, all internally compiled configurations will be cached,
+     * including:
+     * - Command scanner / command registry
+     * - Middleware scanner / middleware registry
+     * - Console interaction registry
+     *
+     * Cached data will be reused on subsequent boots to significantly
+     * improve performance and ensure deterministic resolution.
+     *
+     * Recommended:
+     * - Production: true
+     * - Development: false (to reflect changes immediately)
+     */
+    'cache' => env('TELEGRAM_CACHE', false),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Console Command Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the Telegram Console Command System.
+    |
+    | This section controls language resolution and translation files
+    | used by console help output, error messages, and suggestions.
+    |
+    | All console strings are loaded from language files.
+    | There is NO built-in or hardcoded dictionary in the source code.
+    |
+    */
+    "console" => [
+         /*
+        |--------------------------------------------------------------------------
+        | Console Language
+        |--------------------------------------------------------------------------
+        |
+        | Default language used by all console renderers.
+        |
+        | This value determines which language file will be loaded
+        | from the configured language paths.
+        |
+        | Supported values depend on the available language files.
+        | If the requested language is not found, the system will
+        | fallback to "en".
+        |
+        */
+        'lang' => env('TELEGRAM_LANG', 'id'),
+        /*
+        |--------------------------------------------------------------------------
+        | Console Language Path
+        |--------------------------------------------------------------------------
+        |
+        | Path to the directory containing console translation files.
+        |
+        | All console messages (help, errors, suggestions) MUST be
+        | defined in language files located in this directory.
+        |
+        | The directory should contain one file per language:
+        |
+        |   {lang}.php   → PHP file returning array<string, string>
+        |   {lang}.json  → JSON file with string → string mappings
+        |
+        | Example structure:
+        |
+        |   lang/telegram-console/
+        |     ├── id.php
+        |     └── en.php
+        |
+        | If this value is null, the system will load translations
+        | from the package default language directory.
+        |
+        | Missing keys are NOT generated automatically.
+        | Renderers expect all required translation keys to exist.
+        |
+        */
+        "lang_path" => null,
+    ]
 
     /*
     |--------------------------------------------------------------------------

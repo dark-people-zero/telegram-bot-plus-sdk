@@ -12,6 +12,93 @@ Library ini dirancang untuk:
 
 ---
 
+## 🧭 Console Command Inspector (v4.1+)
+
+Mulai versi **v4.1**, Telegram Bot Plus SDK menyediakan sistem **Console Command Inspector**.
+
+Fitur utama:
+
+* Validasi command sebelum dieksekusi
+* Help message otomatis (root / group / command)
+* Pesan error terstruktur
+* Suggestion jika command salah
+* Output Markdown (siap dikirim ke Telegram)
+
+### Multi-language
+
+```php
+'console' => [
+    'lang' => env('TELEGRAM_LANG', 'id'),
+    'lang_path' => null,
+],
+```
+
+### 🔐 Command Authorization
+
+Command Inspector menyediakan fitur **authorization** untuk mengontrol
+apakah sebuah command boleh diakses dan dieksekusi oleh user.
+
+Authorization dilakukan dengan menambahkan method static `authorize()` pada command.
+
+~~~php
+public static function authorize(TelegramUpdateMeta $meta): bool
+{
+    return $meta->actor()->isAdmin();
+}
+~~~
+
+#### Kegunaan Authorization
+
+Fitur authorization digunakan untuk:
+
+- Melakukan validasi akses command  
+  (misalnya: user belum login, bukan admin, atau tidak memiliki izin tertentu).
+- Mencegah eksekusi command yang tidak diizinkan.
+- Menyaring daftar command yang ditampilkan pada help.
+
+#### Perilaku Authorization
+
+- Jika `authorize()` mengembalikan `false`:
+  - Command **tidak dapat dieksekusi**.
+  - Sistem akan menampilkan pesan *unauthorized*.
+  - Command **tidak akan muncul** pada hasil `--help`.
+- Jika `authorize()` mengembalikan `true`:
+  - Command dapat dieksekusi seperti biasa.
+  - Command akan ditampilkan pada daftar help.
+
+#### Catatan Penting
+
+- Method `authorize()` harus bersifat **ringan dan deterministik**.
+- Hindari operasi berat seperti:
+  - query database
+  - HTTP request
+  - file I/O
+- Authorization dievaluasi **sebelum eksekusi command**.
+
+Dengan mekanisme ini, Command Inspector hanya akan menampilkan
+dan mengeksekusi command yang relevan dan aman sesuai dengan konteks user.
+
+
+---
+
+## 🧹 Cache Internal & Artisan Command
+
+Semua data internal SDK dicache otomatis:
+
+* command registry
+* middleware config
+* console metadata
+* language dictionary
+
+Untuk membersihkan cache:
+
+```bash
+php artisan telegram:cache:clear
+```
+
+Aman dipanggil kapan saja dan tidak mempengaruhi cache aplikasi lain.
+
+
 ## ✨ Fitur Utama
 
 ### 🔧 Pengembangan

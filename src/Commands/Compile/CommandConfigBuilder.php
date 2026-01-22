@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace DarkPeople\TelegramBot\Commands\Compile;
 
 use DarkPeople\TelegramBot\Commands\Scan\CommandScanner;
+use DarkPeople\TelegramBot\Support\RuntimeConfig;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 
 final class CommandConfigBuilder
 {
+    public const CACHE_KEY = 'telegram:config_commands';
     public function __construct(
         private CommandScanner $scanner,
         private TelegramCommandConfigMerger $merger,
@@ -23,6 +26,11 @@ final class CommandConfigBuilder
      */
     public function build(): array
     {
+        if (RuntimeConfig::useCache()) {
+            $payload = Cache::get(self::CACHE_KEY);
+            if (is_array($payload)) return $payload;
+        }
+        
         /** @var array $telegramConfig */
         $telegramConfig = (array) $this->config->get('telegram', []);
 
@@ -33,7 +41,14 @@ final class CommandConfigBuilder
             return $telegramConfig;
         }
 
-        return $this->merger->merge($telegramConfig, $discovered);
+        $merger = $this->merger->merge($telegramConfig, $discovered);
+
+        // --- save cache ---
+        if (RuntimeConfig::useCache()) {
+            Cache::forever(self::CACHE_KEY, $merger);
+        }
+
+        return $merger;
     }
 
     /**

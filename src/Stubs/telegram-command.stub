@@ -2,13 +2,12 @@
 
 namespace {{ namespace }};
 
-use DarkPeople\TelegramBot\Commands\Contracts\PlusCommandMeta;
-use DarkPeople\TelegramBot\Commands\Concerns\HasPlusCommandMeta;
-use Telegram\Bot\Commands\Command;
+use DarkPeople\TelegramBot\Commands\Inspect\InteractsWithConsoleHelp;
+use DarkPeople\TelegramBot\Commands\PlusCommand;
 
-final class {{ class }} extends Command implements PlusCommandMeta
+final class {{ class }} extends PlusCommand
 {
-    use HasPlusCommandMeta;
+    use InteractsWithConsoleHelp;
 
     /**
      * Telegram command name used by irazasyed/telegram-bot-sdk.
@@ -52,6 +51,92 @@ final class {{ class }} extends Command implements PlusCommandMeta
      * @var string|null
      */
     public ?string $sharedAs = null;
+
+    /**
+    * Argument pattern definition (SDK default name).
+    *
+    * Format examples:
+    * "{name?} {age?: \d+} {model}"
+    *
+    * Token rules:
+    * - "{name?}"        : required argument
+    * - "{name}"         : optional argument
+    * - "{age?: \d+}"    : required argument with regex validation (regex without delimiter)
+    *
+    * @var string
+    */
+    protected string $pattern = '';
+
+    /**
+    * Option pattern definition.
+    *
+    * Uses the same token format as {@see self::$pattern}.
+    *
+    * Format examples:
+    * "{name?} {age?: \d+} {model}"
+    *
+    * Token rules:
+    * - "{name?}"        : required option
+    * - "{name}"         : optional option
+    * - "{age?: \d+}"    : required option with regex filter/extract (regex without delimiter)
+    *
+    * @var string
+    */
+    protected string $patternOption = '';
+
+    /**
+    * Command argument descriptions.
+    *
+    * Maps argument name to human-readable description.
+    *
+    * Example:
+    * [
+    *   'name' => 'User name',
+    *   'age'  => 'User age',
+    * ]
+    *
+    * @var array<string, string>
+    */
+    protected array $argumentDescription = [];
+
+    /**
+    * Command option descriptions.
+    *
+    * Maps option name to human-readable description.
+    *
+    * Example:
+    * [
+    *   'name'  => 'User name',
+    *   'age'   => 'User age',
+    *   'force' => 'Force execution',
+    * ]
+    *
+    * @var array<string, string>
+    */
+    protected array $optionDescription = [];
+
+    /**
+    * Child command classes.
+    *
+    * Each value must be a class-string of a child command.
+    *
+    * @var array<int, class-string>
+    */
+    protected array $children = [];
+
+    /**
+    * Determine whether the current update is authorized to execute this command.
+    *
+    * Returning true allows execution to proceed.
+    * Returning false blocks execution and triggers an unauthorized response.
+    *
+    * @param TelegramUpdateMeta $meta
+    * @return bool
+    */
+    public static function authorize(TelegramUpdateMeta $meta): bool
+    {
+        return true;
+    }
 
     /**
      * Handle the incoming Telegram command.

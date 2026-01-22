@@ -6,11 +6,14 @@ namespace DarkPeople\TelegramBot\Middleware\Compile;
 
 use DarkPeople\TelegramBot\Middleware\Authoring\MiddlewareAuthoringConfigNormalizer;
 use DarkPeople\TelegramBot\Middleware\Scan\MiddlewareScanner;
+use DarkPeople\TelegramBot\Support\RuntimeConfig;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 
 final class MiddlewareConfigBuilder
 {
+    public const CACHE_KEY = 'telegram:config_middleware';
     public function __construct(
         private MiddlewareScanner $scanner,
         private MiddlewareAuthoringConfigNormalizer $normalizer,
@@ -25,6 +28,11 @@ final class MiddlewareConfigBuilder
      */
     public function build(): array
     {
+        if (RuntimeConfig::useCache()) {
+            $payload = Cache::get(self::CACHE_KEY);
+            if (is_array($payload)) return $payload;
+        }
+        
         /** @var array $telegramConfig */
         $telegramConfig = (array) $this->config->get('telegram', []);
 
@@ -34,7 +42,14 @@ final class MiddlewareConfigBuilder
         $scanned = $this->scanner->scan($paths);
         $authoring = $this->normalizer->normalize($telegramConfig);
 
-        return $this->compiler->compile($scanned, $authoring, $botNames);
+        $compile = $this->compiler->compile($scanned, $authoring, $botNames);
+
+        // --- save cache ---
+        if (RuntimeConfig::useCache()) {
+            Cache::forever(self::CACHE_KEY, $compile);
+        }
+        
+        return $compile;
     }
 
     /**

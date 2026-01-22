@@ -13,6 +13,94 @@ Designed for:
 
 ---
 
+## 🧭 Console Command Inspector (v4.1+)
+
+Starting from **v4.1**, Telegram Bot Plus SDK introduces a **Console Command Inspector** layer.
+
+Key features:
+
+* Command validation before execution
+* Automatic help messages (root / group / leaf)
+* Structured error output
+* Command suggestions
+* Markdown-rendered output
+
+### Multi-language Support
+
+```php
+'console' => [
+    'lang' => env('TELEGRAM_LANG', 'en'),
+    'lang_path' => null,
+],
+```
+
+### 🔐 Command Authorization
+
+The Command Inspector provides an **authorization** feature to control
+whether a command can be accessed and executed by a user.
+
+Authorization is implemented by defining a static `authorize()` method
+on the command class.
+
+~~~php
+public static function authorize(TelegramUpdateMeta $meta): bool
+{
+    return $meta->actor()->isAdmin();
+}
+~~~
+
+#### Authorization Use Cases
+
+The authorization feature can be used to:
+
+- Validate command access  
+  (for example: user is not logged in, not an admin, or lacks permissions).
+- Prevent execution of unauthorized commands.
+- Filter which commands appear in the help output.
+
+#### Authorization Behavior
+
+- When `authorize()` returns `false`:
+  - The command **cannot be executed**.
+  - An *unauthorized* message will be displayed.
+  - The command **will not appear** in the `--help` output.
+- When `authorize()` returns `true`:
+  - The command can be executed normally.
+  - The command will appear in the help listing.
+
+#### Important Notes
+
+- The `authorize()` method must be **lightweight and deterministic**.
+- Avoid heavy operations such as:
+  - database queries
+  - HTTP requests
+  - file I/O
+- Authorization is evaluated **before command execution**.
+
+With this mechanism, the Command Inspector ensures that only
+relevant and safe commands are visible and executable for the user.
+
+
+---
+
+## 🧹 Runtime Cache & Artisan Command
+
+Internal SDK data is cached for performance:
+
+* command registry
+* middleware configuration
+* console metadata
+* language dictionaries
+
+Clear all Telegram SDK cache with:
+
+```bash
+php artisan telegram:cache:clear
+```
+
+This command is safe and scoped only to Telegram SDK internals.
+
+
 ## ✨ Features
 
 ### 🔧 Development
