@@ -79,6 +79,38 @@ abstract class PlusCommand extends Command implements PlusCommandMeta
     private array $options = [];
 
     /**
+     * Prompt template overrides for interactive "listen reply" flow.
+     *
+     * Used by Command Inspector to ask missing values step-by-step.
+     *
+     * Shape:
+     * [
+     *   'name' => "Mau beri nama apa?",
+     *   'age'  => "Umur berapa?",
+     * ]
+     *
+     * Key rules:
+     * - For arguments: use argument name (e.g. "name")
+     * - For options:   use option name without dashes (e.g. "--age" => "age")
+     *
+     * @var array<string, string>
+     */
+    protected array $promptValue = [];
+
+    /**
+     * Default prompt variables for interactive prompt rendering.
+     *
+     * Useful for providing extra variables for ConsoleI18n::getPrompt(), for example:
+     * [
+     *   'default' => ['type' => 'argument'],
+     *   'age'     => ['type' => 'option'],
+     * ]
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    protected array $promptVarible = [];
+
+    /**
      * Determine whether the current update is authorized to execute this command.
      *
      * This method acts as a lightweight authorization gate and must be a pure,
@@ -96,6 +128,29 @@ abstract class PlusCommand extends Command implements PlusCommandMeta
     public static function authorize(TelegramUpdateMeta $meta): bool
     {
         return true;
+    }
+
+    public static function onReply(TelegramUpdateMeta $ctx, array $payload): void
+    {
+        // Default no-op implementation.
+    }
+    
+    /**
+     * Get prompt template overrides for interactive "listen reply" flow.
+     *
+     * @return array<string, string>
+     */
+    public function getPromptValue() : array {
+        return $this->promptValue ?? [];
+    }
+
+    /**
+     * Get default prompt variables for interactive "listen reply" flow.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getPromptVarible() : array {
+        return $this->promptVarible ?? [];
     }
 
     /**

@@ -42,4 +42,12 @@ return [
     ],
     
     'ok' => "",
+
+    'prompt' => [
+        'default' => "Please enter a value for {type} *`{text}`*:",
+    ],
+
+    'hint' => [
+        'cancel' => "_Type `cancel` to cancel._",
+    ],
 ];

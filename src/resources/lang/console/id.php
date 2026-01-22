@@ -42,4 +42,30 @@ return [
     ],
     
     'ok' => "",
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interactive Prompt (Listen Reply)
+    |--------------------------------------------------------------------------
+    |
+    | Used by Command Inspector when a command is missing required arguments
+    | or required options. The renderer will store a pending state and ask
+    | the user for the next value step-by-step.
+    |
+    | - prompt.default: fallback template when a specific key prompt is not found.
+    | - hint.cancel: hint text shown under the prompt message.
+    |
+    | Variables:
+    | - {type}: "argument" or "option"
+    | - {text}: prompt key (e.g. "name", "age")
+    |
+    */
+    'prompt' => [
+        'default' => "Masukkan nilai untuk {type} *`{text}`*:",
+    ],
+
+    'hint' => [
+        'cancel' => "_Ketik `cancel` untuk membatalkan._",
+    ],
+
 ];

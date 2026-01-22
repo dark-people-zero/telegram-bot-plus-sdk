@@ -21,6 +21,20 @@ use DarkPeople\TelegramBot\Support\BaseArraySerializable;
 final class CommandNode extends BaseArraySerializable
 {
     /**
+     * A single node in the console command tree.
+     *
+     * A node can represent:
+     * - root/group namespace (virtual / grouping node) or
+     * - a leaf command (has commandClass, args/options specs, and prompt definitions).
+     *
+     * Prompt customization:
+     * - promptValue: map of prompt template overrides keyed by argument/option name.
+     * - promptVarible: map of default variable sets for prompt rendering keyed by argument/option name.
+     *
+     * Prompt key rules:
+     * - Argument key uses its name (e.g. "name", "age")
+     * - Option key uses long name without dashes (e.g. "--age" => "age")
+     *
      * @param string                       $name         Command name or full path
      *                                                  (e.g. "make", "make:seed").
      * @param string|null                  $description  Human-readable description.
@@ -32,6 +46,9 @@ final class CommandNode extends BaseArraySerializable
      * @param array<string, CommandNode>   $children     Child command nodes,
      *                                                  keyed by subcommand short name
      *                                                  (e.g. "seed").
+     * @param array<string, string>           $promptValue    key = prompt key (e.g. "name") => template string
+     * @param array<string, array<string,mixed>> $promptVarible key = prompt key => variables map
+     * 
      */
     public function __construct(
         public string $name,
@@ -41,6 +58,10 @@ final class CommandNode extends BaseArraySerializable
         public array $arguments = [],
         public array $options = [],
         public array $children = [],
+
+        public array $promptValue = [],
+        public array $promptVarible = [],
+        
     ) {}
 
     /**

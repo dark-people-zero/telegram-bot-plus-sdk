@@ -13,6 +13,131 @@ Designed for:
 
 ---
 
+# Listen Reply (Interactive Reply Listener)
+
+Listen Reply is a feature that allows the bot to **listen to user replies** as a continuation of a conversation flow, **without relying on Telegram’s UI reply mechanism**.
+
+This feature works by storing a **pending state** (cache-safe) per user. When the user sends the next message, the system decides whether the message should be treated as a **reply continuation** or as a **normal incoming message**.
+
+---
+
+## Core Concept
+
+### Pending Scope
+Pending state is stored using the scope:
+
+- `chat:{chatId}:user:{userId}`
+
+This ensures the state is:
+- chat-specific
+- user-specific
+- isolated between different users
+
+### TTL
+Each pending state has a TTL (default: `120s`) which can be configured via:
+
+- `telegram.console.listen_reply_ttl`
+
+TTL can also be overridden when the library user explicitly activates Listen Reply.
+
+---
+
+## Two Listen Reply Modes
+
+Listen Reply is designed with **two modes** to avoid conflicts between internal SDK behavior and custom user logic.
+
+### 1. Inspector Mode (Owned by SDK)
+Inspector Mode is used by the **Command Inspector** to complete incomplete command input.
+
+Triggered when the resolver returns:
+- `ResolveResult::MISSING_ARGUMENT`
+- `ResolveResult::MISSING_OPTION`
+
+Behavior:
+1. The system stores a pending state with mode `inspector`, containing:
+   - `baseInput` (command name, e.g. `make:model`)
+   - `args` (arguments already collected)
+   - `options` (option tokens already collected)
+   - `next` (next target to ask: argument or option)
+2. The system sends an interactive, localized prompt asking for the missing value.
+3. When the user replies:
+   - the reply is appended as the next argument, or
+   - converted into `--option=value`
+   - the command is rebuilt
+   - the command is re-dispatched through the SDK CommandBus / runner
+
+Important notes:
+- **Inspector mode never calls `onReply()`**.
+- Its sole purpose is to complete the command so it becomes valid and executable.
+
+---
+
+### 2. Custom Mode (Owned by Library User)
+Custom Mode is intended for library users who want to build their own interactive flows (wizard, OTP, confirmation, etc).
+
+This mode is activated explicitly by calling:
+
+- `setMessageListenReply(...)`
+
+Behavior:
+1. The system stores a pending state with mode `custom`.
+2. When the user sends the next plain text message:
+   - the message is routed back to the target command
+   - `ReplyContext` is activated (runtime-only)
+   - the command handles the reply inside `onReply()`
+
+Important notes:
+- In custom mode, **the user has full control**:
+  - The SDK does not rebuild commands.
+  - The SDK does not send automatic responses.
+- `onReply()` must be `void`, and response handling is entirely the responsibility of the library user.
+
+---
+
+## Command vs Plain Text Detection
+
+The system relies on metadata provided by `TelegramContext`:
+
+- `TelegramContext::$isCommand`
+
+Routing rules:
+
+### A. Incoming message is a COMMAND
+- If a pending state exists:
+  - the pending state is **automatically canceled**
+- The system does not intercept
+- The SDK continues handling the new command normally
+
+Purpose:
+- Prevent conflicts between an old pending state and a newly issued command.
+
+---
+
+### B. Incoming message is Plain Text
+- If no pending state exists:
+  - the SDK handles the message normally
+- If a pending state exists:
+  - `inspector` → rebuild and re-dispatch the command
+  - `custom` → route to `onReply()`
+
+---
+
+## Prompt System (Inspector Mode)
+
+When `MISSING_ARGUMENT` or `MISSING_OPTION` occurs, the Command Inspector can generate an interactive prompt.
+
+### Dictionary Keys
+Prompts use the following dictionary structure:
+
+```php
+'prompt' => [
+  'default' => "Please enter a value for {type} *`{text}`*:",
+],
+'hint' => [
+  'cancel' => "_Type `cancel` to cancel._",
+],
+```
+
 ## 🧭 Console Command Inspector (v4.1+)
 
 Starting from **v4.1**, Telegram Bot Plus SDK introduces a **Console Command Inspector** layer.
@@ -33,6 +158,44 @@ Key features:
     'lang_path' => null,
 ],
 ```
+
+### Prompt Key Rules
+
+- Argument key: `name`, `age`, etc.
+- Option key: option long name without dashes (e.g. `--age` → `age`).
+
+### Per-Command Prompt Override
+
+Commands can override prompts using:
+
+- `promptValue` (template strings)
+- `promptVarible` (global default variables)
+
+Example:
+```php
+$promptValue = [
+  'mother' => 'What is the mother name for {vname}?',
+  'where'  => 'Where does {vname} live?',
+];
+
+$promptVarible = [
+  'vname' => 'you',
+];
+```
+
+Result:
+
+- `What is the mother name for you?`
+- `Where does you live?`
+
+Variables `{type}` and `{text}` are always injected automatically.
+Additional variables (e.g. `{vname}`) come from `promptVarible` and can be overridden when needed.
+
+### Design Notes
+
+- Pending state is cache-safe (no closures or callable handlers).
+- `ReplyContext` is runtime-only (not cached) and only active during custom mode dispatch.
+- Listen Reply focuses purely on routing and state management and does not alter command business logic.
 
 ### 🔐 Command Authorization
 

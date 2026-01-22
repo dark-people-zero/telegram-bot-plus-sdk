@@ -7,7 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [4.1.0] - 2026-01-17
+## [4.2.0] - 2026-01-23
+
+### ✨ New Features
+
+#### Interactive Listen Reply
+- Added **Listen Reply** feature to support interactive command flows without relying on Telegram UI reply.
+- Supports **cache-safe pending state** scoped per chat and user.
+- Pending state is automatically canceled when a new command is issued.
+- Configurable TTL for pending reply via `telegram.console.listen_reply_ttl`.
+
+#### Inspector Mode (Command Completion)
+- Command Inspector can now interactively resolve:
+  - Missing required arguments
+  - Missing required options
+- Step-by-step prompting for arguments and options.
+- Automatic command rebuild and re-dispatch through SDK CommandBus.
+- Inspector mode does **not** invoke `onReply()`.
+
+#### Custom Listen Reply Mode
+- Library users can explicitly activate listen reply using `setMessageListenReply()`.
+- Replies are routed back to the command and handled via `onReply()`.
+- Full control over response handling is delegated to the user.
+- `ReplyContext` is provided as runtime-only context for reply handling.
+
+---
+
+### 🌍 Prompt & Localization Improvements
+- Introduced interactive prompt system with multi-language support.
+- Added `prompt.default` and `hint.cancel` dictionary keys.
+- Commands can override prompts using:
+  - `promptValue` (template string overrides)
+  - `promptVarible` (global default variables for placeholders)
+- Prompt templates support custom placeholders (e.g. `{vname}`) and automatic variables `{type}` and `{text}`.
+
+---
+
+### ⚡ Performance & Caching
+- All compiled command, middleware, and console metadata are now cacheable.
+- Added centralized runtime configuration via `RuntimeConfig`.
+- Added artisan command to clear all Telegram SDK caches.
+
+---
+
+### 🧱 Internal Architecture Changes
+- Added `ReplyInterceptor` to handle pre-dispatch routing for listen reply.
+- Added `PendingReply`, `ReplyListenerStore`, and `ReplyContext` modules.
+- Integrated interactive prompt handling into `ConsoleHelpRenderer`.
+- Enhanced `CommandNode` and `PlusCommand` with prompt metadata support.
+
+---
+
+### 🔄 Backward Compatibility
+- Existing commands continue to work without modification.
+- Listen Reply features are opt-in for library users.
+- No breaking changes to existing command execution flow.
+
+
+
+## [4.1.0] - 2026-01-22
 
 ### Added
 

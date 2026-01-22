@@ -91,7 +91,7 @@ final class ConsoleI18n
             $val = str_replace('{' . $k . '}', (string) $v, $val);
         }
 
-        return $val;
+        return empty($val) ? $keys : $val;
     }
 
     /**
@@ -220,5 +220,76 @@ final class ConsoleI18n
         }
         return false;
     }
+    
+    /**
+     * Get an interactive prompt message for "listen reply" flow.
+     *
+     * Resolution rules (highest priority wins):
+     * 1) Language dictionary from configured lang sources (built-in + package + override path).
+     * 2) Prompt templates override from $promptValue (passed from CommandNode / PlusCommand).
+     * 3) Default variables from $promptVarible (passed from CommandNode / PlusCommand).
+     *
+     * Behavior:
+     * - The method tries to find a prompt template by the given $key.
+     * - If not found, it falls back to 'prompt.default'.
+     * - Variables are merged and replaced using "{var}" placeholders.
+     *
+     * Prompt key rules:
+     * - For arguments: use argument name (e.g. "name", "age").
+     * - For options:   use option long name without leading dashes (e.g. "--age" => "age").
+     *
+     * Common variables:
+     * - {type}: "argument" or "option"
+     * - {text}: the prompt key (e.g. "name", "age")
+     *
+     * @param string $key Prompt key (argument/option name without dashes).
+     * @param array<string, mixed> $vars Variables to replace into the prompt template.
+     * @param array<string, string> $promptValue Prompt template overrides keyed by prompt key.
+     * @param array<string, array<string, mixed>> $promptVarible Default variables keyed by prompt key.
+     * @param string|null $lang Optional language override.
+     * @return string Rendered prompt message.
+     */
+    public static function getPrompt(
+        string $key,
+        array $vars = [],
+        array $promptValue = [],
+        array $promptVarible = [],
+        ?string $lang = null
+    ): string {
+        $lang ??= RuntimeConfig::lang();
+
+        $dict = self::getLang($lang);
+
+        $promptDict = is_array($dict['prompt'] ?? null) ? $dict['prompt'] : [];
+
+        if (isset($promptValue[$key]) && is_string($promptValue[$key])) {
+            $template = $promptValue[$key];
+        } elseif (isset($promptDict[$key]) && is_string($promptDict[$key])) {
+            $template = $promptDict[$key];
+        } else {
+            $template = $promptDict['default'] ?? "Masukkan nilai untuk {type} *`{text}`*:";
+        }
+
+        $defaultVars = [];
+
+        if (isset($promptVarible['default']) && is_array($promptVarible['default'])) $defaultVars = $promptVarible['default'];
+
+        if (isset($promptVarible[$key]) && is_array($promptVarible[$key])) {
+            $defaultVars = array_replace($defaultVars, $promptVarible[$key]);
+        }
+
+        foreach ($promptVarible as $k => $v) {
+            if (is_string($k) && !is_array($v)) $defaultVars[$k] = $v;
+        }
+
+        $allVars = array_replace($defaultVars, $vars);
+
+        foreach ($allVars as $k => $v) {
+            $template = str_replace('{' . $k . '}', (string) $v, $template);
+        }
+
+        return (string) $template;
+    }
+
 
 }

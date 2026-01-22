@@ -12,6 +12,169 @@ Library ini dirancang untuk:
 
 ---
 
+# Listen Reply (Interactive Reply Listener)
+
+Listen Reply adalah fitur untuk “mendengarkan balasan user” sebagai kelanjutan alur percakapan bot, **tanpa** bergantung pada UI Telegram “reply message”.
+
+Fitur ini bekerja dengan menyimpan **state pending** (cache-safe) per user, lalu ketika user mengirim pesan berikutnya, sistem akan memutuskan apakah pesan tersebut harus diproses sebagai **balasan** atau sebagai **pesan normal**.
+
+---
+
+## Konsep Utama
+
+### Scope Pending
+State pending disimpan dengan scope:
+
+- `chat:{chatId}:user:{userId}`
+
+Sehingga state bersifat:
+- per chat
+- per user
+- tidak saling bentrok antar user
+
+### TTL
+Pending state memiliki TTL (default `120s`) yang bisa diatur melalui config:
+
+- `telegram.console.listen_reply_ttl`
+
+TTL juga bisa di-override ketika pengguna library memanggil API Listen Reply.
+
+---
+
+## Dua Mode Listen Reply
+
+Listen Reply memiliki 2 mode agar alur internal SDK tidak bentrok dengan alur kustom milik pengguna library.
+
+### 1. Inspector Mode (Owned by SDK)
+Inspector Mode dipakai oleh **Command Inspector** untuk menyelesaikan input command yang belum lengkap.
+
+Dipicu ketika resolver menghasilkan status:
+- `ResolveResult::MISSING_ARGUMENT`
+- `ResolveResult::MISSING_OPTION`
+
+Perilaku:
+1. Sistem menyimpan pending state mode `inspector`:
+   - `baseInput` (command name, format `make:model`)
+   - `args` (arg yang sudah terkumpul)
+   - `options` (token option yang sudah terkumpul)
+   - `next` (target yang akan ditanyakan: arg/opt)
+2. Sistem mengirim prompt (multi-language) untuk meminta nilai berikutnya.
+3. Ketika user membalas:
+   - sistem menggabungkan balasan user ke `args` atau membentuk `--opt=value`
+   - sistem membangun ulang command
+   - sistem melakukan dispatch ulang melalui jalur CommandBus / runner SDK
+
+Catatan penting:
+- **Inspector mode tidak memanggil `onReply()`**.
+- Tujuannya murni untuk melengkapi command agar valid dan bisa dieksekusi.
+
+---
+
+### 2. Custom Mode (Owned by Library User)
+Custom Mode dipakai oleh pengguna library ketika ingin membuat alur interaktif sendiri (wizard / OTP / konfirmasi, dsb).
+
+Pengguna library mengaktifkan mode ini dengan memanggil:
+
+- `setMessageListenReply(...)`
+
+Perilaku:
+1. Sistem menyimpan pending state mode `custom` (cache-safe).
+2. Saat user mengirim pesan berikutnya (plain text):
+   - sistem meroute pesan tersebut kembali ke command target
+   - sistem mengaktifkan `ReplyContext` (runtime-only)
+   - command dapat menangani balasan di method `onReply()`
+
+Catatan penting:
+- Dalam custom mode, **user full control**:
+  - SDK tidak membangun ulang command.
+  - SDK tidak memberikan respon otomatis.
+- `onReply()` bersifat `void`, dan respon sepenuhnya diatur pengguna library.
+
+---
+
+## Deteksi Command vs Plain Text
+
+Sistem menggunakan metadata dari `TelegramContext`:
+
+- `TelegramContext::$isCommand`
+
+Aturan routing:
+
+### A. Jika pesan adalah COMMAND
+- Jika user mengirim command baru saat masih ada pending:
+  - pending state **dibatalkan** (auto cancel)
+  - sistem tidak mengintersep, biarkan SDK menangani command baru normal
+
+Tujuan:
+- mencegah tabrakan state lama dengan command baru.
+
+### B. Jika pesan adalah Plain Text
+- Jika tidak ada pending:
+  - biarkan SDK memproses normal
+- Jika ada pending:
+  - `inspector`: rebuild + dispatch ulang
+  - `custom`: route ke `onReply()`
+
+---
+
+## Prompt System (Inspector Mode)
+
+Saat terjadi `MISSING_ARGUMENT` / `MISSING_OPTION`, Command Inspector dapat membuat prompt interaktif.
+
+### Dictionary Keys
+Prompt menggunakan dictionary:
+
+- `prompt.default`
+- `hint.cancel`
+
+Format contoh:
+
+```php
+'prompt' => [
+  'default' => "Masukkan nilai untuk {type} *`{text}`*:",
+],
+'hint' => [
+  'cancel' => "_Ketik `cancel` untuk membatalkan._",
+],
+```
+
+### Prompt Key Rules
+
+- Argument key: `name`, `age`, dst.
+- Option key: tanpa dash, contoh `--age` => `age`.
+
+### Prompt Override per Command
+
+Command dapat meng-override prompt dengan:
+- `promptValue` (template string)
+- `promptVarible` (global default variables)
+
+Contoh:
+```php
+$promptValue = [
+  'mother' => 'Nama ibu untuk {vname} siapa ?',
+  'where'  => '{vname} tinggal dimana ?',
+];
+
+$promptVarible = [
+  'vname' => 'kamu',
+];
+```
+
+Output:
+
+- `Nama ibu untuk kamu siapa ?`
+- `kamu tinggal dimana ?`
+
+Variable `{type}` dan `{text}` selalu tersedia otomatis.
+Variable lain (contoh `{vname}`) diambil dari `promptVarible` dan dapat di-override oleh sistem bila diperlukan.
+
+### Catatan Desain
+
+- Pending state bersifat cache-safe (tidak menyimpan closure / handler).
+- `ReplyContext` adalah runtime-only (tidak di-cache), hanya aktif saat custom mode dispatch.
+- Listen Reply hanya melakukan routing dan state management, tidak mengubah business logic command.
+
 ## 🧭 Console Command Inspector (v4.1+)
 
 Mulai versi **v4.1**, Telegram Bot Plus SDK menyediakan sistem **Console Command Inspector**.

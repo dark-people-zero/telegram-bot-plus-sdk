@@ -173,6 +173,13 @@ final class ConsoleCommandRegistry
             }
         }
 
+        $promptValue = [];
+        if (method_exists($cmd, "getPromptValue")) $promptValue = $cmd->getPromptValue() ?? [];
+
+        $promptVarible = [];
+        if (method_exists($cmd, "getPromptVarible")) $promptValue = $cmd->getPromptVarible() ?? [];
+            
+
         [$incomingRoot, $incomingLeaf] = $this->buildChainFromNames(
             Str::of($name)->explode(':')->all(),
             [
@@ -180,6 +187,8 @@ final class ConsoleCommandRegistry
                 'commandClass' => get_class($cmd), // atau dari $cmd
                 'arguments' => $arguments ?? [],
                 'options' => $options ?? [],
+                'promptValue' => $promptValue ?? [],
+                'promptVarible' => $promptVarible ?? [],
             ]
         );
 
@@ -243,6 +252,8 @@ final class ConsoleCommandRegistry
                 arguments: $isLeaf ? ($leafMeta['arguments'] ?? []) : [],
                 options: $isLeaf ? ($leafMeta['options'] ?? []) : [],
                 children: [],
+                promptValue: $leafMeta['promptValue'] ?? [],
+                promptVarible: $leafMeta['promptValue'] ?? [],
             );
 
             if ($prev) {

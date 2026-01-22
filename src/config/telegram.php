@@ -396,6 +396,12 @@ return [
         |
         */
         "lang_path" => null,
+
+        /**
+         * Default TTL (seconds) for pending "listen reply" state.
+         * Can be overridden per call when setting the pending reply.
+         */
+        'listen_reply_ttl' => env('TELEGRAM_LISTEN_REPLY_TTL', 120),
     ]
 
     /*

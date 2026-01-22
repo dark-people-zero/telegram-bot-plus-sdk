@@ -9,6 +9,8 @@ use DarkPeople\TelegramBot\Artisan\WebhookCommand;
 use DarkPeople\TelegramBot\BotsManagerPlus;
 use DarkPeople\TelegramBot\Commands\Compile\CommandConfigBuilder;
 use DarkPeople\TelegramBot\Middleware\Compile\MiddlewareConfigBuilder;
+use DarkPeople\TelegramBot\Reply\CacheReplyListenerStore;
+use DarkPeople\TelegramBot\Reply\ReplyListenerStore;
 use DarkPeople\TelegramBot\Support\UpdateMeta\Permissions\PermissionCatalog;
 use DarkPeople\TelegramBot\Support\UpdateMeta\Permissions\PermissionResolver;
 use Illuminate\Contracts\Support\DeferrableProvider;
@@ -80,6 +82,8 @@ final class TelegramBotServiceProvider extends ServiceProvider implements Deferr
 
         $this->app->singleton(PermissionCatalog::class, fn () => new PermissionCatalog());
         $this->app->singleton(PermissionResolver::class, fn ($app) => new PermissionResolver($app->make(PermissionCatalog::class)));
+
+        $this->app->singleton(ReplyListenerStore::class, fn () => new CacheReplyListenerStore());
     }
 
     /**

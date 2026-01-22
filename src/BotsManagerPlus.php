@@ -2,6 +2,7 @@
 
 namespace DarkPeople\TelegramBot;
 
+use DarkPeople\TelegramBot\Reply\ReplyInterceptor;
 use DarkPeople\TelegramBot\Support\BotNameResolver;
 use DarkPeople\TelegramBot\Support\StandardWebhookValidator;
 use DarkPeople\TelegramBot\Support\TelegramContext;
@@ -94,6 +95,11 @@ final class BotsManagerPlus
                 return; // stop
             }
         }
+
+        // handle reply message / command
+        $interceptor = app(ReplyInterceptor::class);
+
+        $handled = $interceptor->intercept($ctx);
 
 
         $telegram->commandsHandler(true);
