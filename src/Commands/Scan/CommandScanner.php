@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace DarkPeople\TelegramBot\Commands\Scan;
 
 use DarkPeople\TelegramBot\Commands\Contracts\PlusCommandMeta;
+use DarkPeople\TelegramBot\Commands\PlusCommand;
 use DarkPeople\TelegramBot\Support\Scan\DiscoveredScan;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use RuntimeException;
-use Telegram\Bot\Commands\Command as SdkCommand;
 
 final class CommandScanner
 {
@@ -61,8 +61,8 @@ final class CommandScanner
                     continue;
                 }
 
-                // must extend SDK Command
-                if (!$ref->isSubclassOf(SdkCommand::class)) {
+                // must extend PlusCommand
+                if (!$ref->isSubclassOf(PlusCommand::class)) {
                     continue;
                 }
 
