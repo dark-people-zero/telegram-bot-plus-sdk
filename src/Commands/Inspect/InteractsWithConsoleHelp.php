@@ -59,6 +59,14 @@ trait InteractsWithConsoleHelp
             if($specOptions !== null && method_exists($this, 'setOptions')) {
                 $this->setOptions(PatternParser::resolveOptions($optionInput, $specOptions));
             }
+
+            if (self::class != $result->node->commandClass) {
+                /** @var PlusCommand $cls */
+                $cls = new $result->node->commandClass();
+                $cls->make($telegram, $update, $entity);
+                return false;
+            }
+            
             return true;
         }
 
