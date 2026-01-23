@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 final class MakeCommandCommand extends Command
 {
     protected $signature = 'telegram:make:command
-        {name : Class name, e.g. StartCommand}
+        {name : Class name, supports subfolder/chaining, e.g. StartCommand or Admin/StartCommand}
         {--name= : Telegram command name (SDK $name), e.g. start}
         {--description= : SDK description}
         {--force : Overwrite if file exists}';
@@ -20,20 +20,47 @@ final class MakeCommandCommand extends Command
 
     public function handle(Filesystem $files): int
     {
-        $rawName = (string) $this->argument('name');
-
-        if (Str::contains($rawName, ['/', '\\'])) {
-            $this->error('Chaining/subfolder is not supported. Use class name only (e.g. StartCommand).');
-            return self::FAILURE;
-        }
-
-        $class = Str::studly($rawName);
-        if ($class === '') {
+        $rawName = trim((string) $this->argument('name'));
+        if ($rawName === '') {
             $this->error('Invalid class name.');
             return self::FAILURE;
         }
 
-        $dir = app_path('Telegram/Commands');
+        // Support chaining: Foo/Bar/StartCommand or Foo\Bar\StartCommand
+        $normalized = str_replace('\\', '/', $rawName);
+        $parts = array_values(array_filter(explode('/', $normalized), fn ($p) => $p !== ''));
+
+        if ($parts === []) {
+            $this->error('Invalid class name.');
+            return self::FAILURE;
+        }
+
+        // Disallow traversal / invalid segments
+        foreach ($parts as $p) {
+            if ($p === '.' || $p === '..' || str_contains($p, '..')) {
+                $this->error('Invalid name: path traversal is not allowed.');
+                return self::FAILURE;
+            }
+
+            // allow letters, numbers, underscore only (per segment)
+            if (!preg_match('/^[A-Za-z0-9_]+$/', $p)) {
+                $this->error("Invalid name segment: {$p}. Use only letters, numbers, underscore, and / or \\ for folders.");
+                return self::FAILURE;
+            }
+        }
+
+        // Studly each segment (folders + class)
+        $studlyParts = array_map(fn ($p) => Str::studly($p), $parts);
+        $class = array_pop($studlyParts);
+
+        if (!is_string($class) || $class === '') {
+            $this->error('Invalid class name.');
+            return self::FAILURE;
+        }
+
+        // Build dir & namespace with optional subfolders
+        $subPath = $studlyParts ? implode(DIRECTORY_SEPARATOR, $studlyParts) : '';
+        $dir = app_path('Telegram/Commands' . ($subPath ? DIRECTORY_SEPARATOR . $subPath : ''));
         $path = $dir . DIRECTORY_SEPARATOR . $class . '.php';
 
         if ($files->exists($path) && ! $this->option('force')) {
@@ -64,7 +91,8 @@ final class MakeCommandCommand extends Command
         $description = (string) ($this->option('description') ?? '');
         $description = trim($description);
 
-        $namespace = 'App\\Telegram\\Commands';
+        $baseNamespace = 'App\\Telegram\\Commands';
+        $namespace = $studlyParts ? ($baseNamespace . '\\' . implode('\\', $studlyParts)) : $baseNamespace;
 
         $stub = $files->get($stubPath);
         $content = str_replace(
@@ -76,7 +104,8 @@ final class MakeCommandCommand extends Command
         $files->ensureDirectoryExists($dir);
         $files->put($path, $content);
 
-        $this->info("Created: {$namespace}\\{$class}");
+        $fqcn = $namespace . '\\' . $class;
+        $this->info("Created: {$fqcn}");
         $this->line($path);
 
         return self::SUCCESS;
