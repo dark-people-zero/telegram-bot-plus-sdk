@@ -243,7 +243,7 @@ final class ConsoleCommandResolver
      */
     private function isLeaf(CommandNode $node): bool
     {
-        return $node->commandClass !== null;
+        return $node->commandClass !== null && count($node->children) == 0;
     }
     
     /**
