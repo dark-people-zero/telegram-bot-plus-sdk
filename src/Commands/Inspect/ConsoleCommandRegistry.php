@@ -49,7 +49,7 @@ final class ConsoleCommandRegistry
     public function __construct()
     {
         $this->globalOptions = [
-            new OptionSpec('--help', '-h', 'Display help for the command.', true),
+            new OptionSpec('--help', '-h', 'Display help for the command.', false),
         ];
     }
 
