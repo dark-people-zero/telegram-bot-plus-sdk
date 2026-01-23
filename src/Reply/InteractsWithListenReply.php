@@ -1,6 +1,6 @@
 <?php
 
-namespace DarkPeople\TelegramBot\Commands\Concerns;
+namespace DarkPeople\TelegramBot\Reply;
 
 use DarkPeople\TelegramBot\Reply\PendingReply;
 use DarkPeople\TelegramBot\Reply\ReplyListenerStore;
