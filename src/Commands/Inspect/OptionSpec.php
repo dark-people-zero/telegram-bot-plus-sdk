@@ -32,6 +32,7 @@ final class OptionSpec extends BaseArraySerializable
         public ?string $short = null,
         public ?string $description = null,
         public bool $required = false,
+        public bool $mustHave = false,
         public ?string $val = null,
         public ?string $pattern = null,
         public bool $isGlobal = false,

@@ -399,7 +399,7 @@ final class ConsoleCommandResolver
         foreach ($specs as $s) {
             if (!$s->required) continue;
 
-            if (!isset($present[strtolower($s->long)])) {
+            if (!isset($present[strtolower($s->long)]) || $s->mustHave && empty($s->val)) {
                 $missing[] = $s->long;
             }
         }

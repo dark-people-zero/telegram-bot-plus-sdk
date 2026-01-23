@@ -57,13 +57,28 @@ final class PatternParser
     public static function parseOptions(string $pattern): array
     {
         $parser = self::parser($pattern);
+
+        $names = array_map(fn ($e) => (string) $e['name'], $parser);
+        $shortMap = self::generateShortOptions($names);
+
         return array_map(
-            fn ($item) => new OptionSpec(
-                long: "--".$item['name'],
-                short: "-".$item['name'],
-                required: $item['required'],
-                pattern: $item['pattern']
-            ),
+            function ($item) use ($shortMap) {
+                $name = (string) $item['name'];
+
+                // fallback super-safe: first char of normalized name
+                $fallback = self::normalize($name);
+                $fallback = $fallback !== '' ? $fallback[0] : 'x';
+
+                $short = $shortMap[$name] ?? $fallback;
+
+                return new OptionSpec(
+                    long: "--$name",
+                    short: "-$short",
+                    required: (bool) $item['required'],
+                    pattern: $item['pattern'],
+                    mustHave: (bool) $item['mustHave'],
+                );
+            },
             $parser
         );
     }
@@ -88,6 +103,7 @@ final class PatternParser
 
             $name = $token;
             $required = false;
+            $mustHave = false;
             $pattern = null;
 
             // split name dan pattern (jika ada)
@@ -103,14 +119,87 @@ final class PatternParser
                 $name = substr($name, 0, -1);
             }
 
+            // cek mustHave (!)
+            if (str_ends_with($name, '!')) {
+                $required = true;
+                $name = substr($name, 0, -1);
+            }
+
             $result[] = [
                 'name'     => $name,
                 'required' => $required,
                 'pattern'  => $pattern,
+                'mustHave'  => $mustHave,
             ];
         }
 
         return $result;
+    }
+
+    private static function generateShortOptions(array $names): array
+    {
+        $result = [];
+        $used = [];
+
+        foreach ($names as $origName) {
+            $origName = (string) $origName;
+            $n = self::normalize($origName);
+            if ($n === '') $n = 'x';
+
+            $first = $n[0]; // always exists
+            $picked = null;
+
+            // Rule 1: first letter
+            if (!isset($used[$first])) {
+                $picked = $first;
+            }
+
+            // Rule 2: pick a unique letter from the name (including digits)
+            if ($picked === null) {
+                $chars = array_values(array_unique(str_split($n)));
+                foreach ($chars as $ch) {
+                    if (!isset($used[$ch])) {
+                        $picked = $ch;
+                        break;
+                    }
+                }
+            }
+
+            // Rule 3: double/triple first letter: vv, vvv (max 3)
+            if ($picked === null) {
+                $vv = $first . $first;
+                if (!isset($used[$vv])) {
+                    $picked = $vv;
+                } else {
+                    $vvv = $first . $first . $first;
+                    if (!isset($used[$vvv])) {
+                        $picked = $vvv;
+                    }
+                }
+            }
+
+            // Rule 4: numbered: v4, v5, ...
+            if ($picked === null) {
+                $k = 4;
+                while (isset($used[$first . $k])) {
+                    $k++;
+                }
+                $picked = $first . $k;
+            }
+
+            $used[$picked] = true;
+            $result[$origName] = $picked;
+        }
+
+        return $result;
+    }
+
+    private static function normalize(string $name): string
+    {
+        $name = strtolower(trim($name));
+        // keep only a-z0-9 so short option stays clean
+        $name = preg_replace('/[^a-z0-9]+/', '', $name) ?? '';
+        return $name;
     }
 
     /**

@@ -166,7 +166,7 @@ final class ConsoleCommandRegistry
         if (method_exists($cmd, "getOptionDesc") && is_array($cmd->getOptionDesc())) {
             foreach ($options as $opt) {
                 $option = $cmd->getOptionDesc();
-                $nm = str_replace("-", '', $opt->short);
+                $nm = str_replace("--", '', $opt->long);
                 if (isset($option[$nm]) && is_string($option[$nm])) {
                     $opt->description = $option[$nm];
                 }

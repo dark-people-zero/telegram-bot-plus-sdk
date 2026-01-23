@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [5.0.0] - 2026-01-24
+### 🚨 Breaking Changes
+
+- `ConsoleCommandRegistry::ingestCommand()` now resolves option descriptions using **long option names** (e.g. `name` from `--name`) instead of short option keys (e.g. `n` from `-n`).
+- Existing implementations of `getOptionDesc()` must update their keys to use long option names.
+
+### Added
+
+- Added `mustHave` property to `OptionSpec`.
+  - This flag indicates that an option **requires a value when the option key is present**.
+- `PatternParser` now includes:
+  - `generateShortOptions()` to automatically generate unique short options and avoid collisions (e.g. `version` vs `verbose`).
+  - `normalize()` to normalize option names before generating short options.
+
+### Changed
+
+- `PatternParser::parseOptions()` and `parser()` have been updated to:
+  - Automatically generate short options from long option names.
+  - Ensure consistent and collision-free short option assignment.
+- `ConsoleCommandResolver::validateOptions()` now treats an option as **missing** when:
+  - The option is marked as required but not present, or
+  - The option has mustHave = true and its value is empty.
+  
+### Fixed
+- Improved option validation for cases where an option key is present but its value is missing.
+
 ## [4.2.0] - 2026-01-23
 
 ### ✨ New Features
