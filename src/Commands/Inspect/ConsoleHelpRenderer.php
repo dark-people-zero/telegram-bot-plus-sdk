@@ -282,9 +282,9 @@ final class ConsoleHelpRenderer
         $cmd = $this->formatCommandName($r->node);
         $items = implode(', ', array_map(fn($x) => "`{$x}`", $r->missingArgs));
 
-        return implode("\n", array_filter([
+        return implode("\n\n", array_filter([
             ConsoleI18n::get('arg.missing', ['items' => $items]),
-            ConsoleI18n::get('cmd.try_help', ['cmd' => $cmd]),
+            ConsoleI18n::get('cmd.try_help', ['cmd' => "/$cmd"]),
         ]));
     }
 
@@ -414,7 +414,7 @@ final class ConsoleHelpRenderer
     private function renderTooManyArgs(ResolveResult $r): string
     {
         $cmd = $this->formatCommandName($r->node);
-        return ConsoleI18n::get('arg.too_many') . "\n" . ConsoleI18n::get('cmd.try_help', ['cmd' => $cmd]);
+        return ConsoleI18n::get('arg.too_many') . "\n\n" . ConsoleI18n::get('cmd.try_help', ['cmd' => "/$cmd"]);
     }
 
     /**
@@ -429,8 +429,8 @@ final class ConsoleHelpRenderer
         $items = implode(', ', array_map(fn($x) => "`{$x}`", $r->invalidArgs));
 
         return ConsoleI18n::get('arg.invalid', ['items' => $items])
-            . "\n"
-            . ConsoleI18n::get('cmd.try_help', ['cmd' => $cmd]);
+            . "\n\n"
+            . ConsoleI18n::get('cmd.try_help', ['cmd' => "/$cmd"]);
     }
 
     /**
@@ -452,8 +452,8 @@ final class ConsoleHelpRenderer
         $items = implode(', ', array_map(fn($x) => "`{$x}`", $r->missingOptions));
 
         return ConsoleI18n::get('opt.missing', ['items' => $items])
-            . "\n"
-            . ConsoleI18n::get('cmd.try_help', ['cmd' => $cmd]);
+            . "\n\n"
+            . ConsoleI18n::get('cmd.try_help', ['cmd' => "/$cmd"]);
     }
 
     /**
@@ -468,8 +468,8 @@ final class ConsoleHelpRenderer
         $items = implode(', ', array_map(fn($x) => "`{$x}`", $r->invalidOptions));
 
         return ConsoleI18n::get('opt.invalid', ['items' => $items])
-            . "\n"
-            . ConsoleI18n::get('cmd.try_help', ['cmd' => $cmd]);
+            . "\n\n"
+            . ConsoleI18n::get('cmd.try_help', ['cmd' => "/$cmd"]);
     }
 
     /**
