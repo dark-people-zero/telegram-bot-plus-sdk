@@ -201,13 +201,13 @@ final class ConsoleHelpRenderer
      */
     private function renderSuggest(ResolveResult $r): string
     {
-        $base = ConsoleI18n::get('cmd.not_found', ['requested' => $r->requested ?? '']);
+        $base = ConsoleI18n::get('cmd.not_found', ['requested' => "/".$r->requested ?? '']);
         if (empty($r->suggest)) return $base;
 
-        $suggest = implode(', ', array_map(fn($s) => "`{$s}`", $r->suggest));
-        $line2 = ConsoleI18n::get('cmd.did_you_mean', ['suggest' => $suggest]);
+        $suggest = implode("\n", array_map(fn($s) => "• `/{$s}`", $r->suggest));
+        $line2 = ConsoleI18n::get('cmd.did_you_mean', ['suggest' => "\n".$suggest]);
 
-        return "$base\n$line2";
+        return "$base\n\n$line2";
     }
 
     /**
