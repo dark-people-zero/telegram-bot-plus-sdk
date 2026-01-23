@@ -131,7 +131,8 @@ final class ConsoleHelpRenderer
     {
         $lines = [];
         $lines[] = ConsoleI18n::get("help.opts");
-        $options = array_merge($this->registry->globalOptions(), $r->node->options ?? []);
+        $option = array_filter($r->node->options ?? [], fn(OptionSpec $e) => $e->short != '-h');
+        $options = array_merge($this->registry->globalOptions(), $option);
         foreach ($options as $opt) {
             $flag = $opt->short ? "{$opt->short}, {$opt->long}" : $opt->long;
             $lines[] = "• `{$flag}`";
@@ -252,15 +253,16 @@ final class ConsoleHelpRenderer
     {
         $desc = $this->getDesc($r);
 
+        $options = array_filter($r->node->options, fn(OptionSpec $e) => $e->short != '-h');
         $cmd = $this->formatCommandName($r->node);
         $argsT = $r->node->arguments ? implode(' ', array_map(fn($a) => $a->required ? "<{$a->name}>" : "[{$a->name}]", $r->node->arguments)) : "";
-        $optT = !empty($r->node->options) ? '[options]' : "";
-        $usage = $this->getUsage($r, "{$cmd} {$argsT} {$optT}");
+        $optT = !empty($options) ? '[options]' : "";
+        $usage = $this->getUsage($r, "/{$cmd} {$argsT} {$optT}");
 
         $args = $this->getArg($r);
         $option = $this->getOpt($r);
         $lines = array_merge($desc, $usage, $args, $option);
-        
+
         return implode("\n", $lines);
     }
 

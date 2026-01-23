@@ -72,7 +72,7 @@ final class ConsoleCommandResolver
         $consumed = 1;
 
         // help on root itself: "make --help"
-        if ($helpRequested && $consumed === count($parts)) {
+        if ($helpRequested && $consumed === count($parts) && !empty($node->children)) {
             return new ResolveResult(
                 status: ResolveResult::SHOW_GROUP_HELP,
                 node: $node,
