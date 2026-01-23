@@ -4,6 +4,7 @@ namespace {{ namespace }};
 
 use DarkPeople\TelegramBot\Commands\Inspect\InteractsWithConsoleHelp;
 use DarkPeople\TelegramBot\Commands\PlusCommand;
+use DarkPeople\TelegramBot\Support\UpdateMeta\TelegramUpdateMeta;
 
 final class {{ class }} extends PlusCommand
 {
