@@ -135,10 +135,8 @@ final class ConsoleCommandResolver
             );
         }
         
+        
         $r = $this->validateArguments($node, $args, $options);
-        if ($r) return $r;
-
-        $r = $this->validateOptions($node, $options, $this->registry->globalOptions(), $args);
         if ($r) return $r;
 
         // 4) Leaf help requested: show leaf help (even if args wrong; help takes precedence)
@@ -152,6 +150,9 @@ final class ConsoleCommandResolver
                 helpRequested: true,
             );
         }
+
+        $r = $this->validateOptions($node, $options, $this->registry->globalOptions(), $args);
+        if ($r) return $r;
 
         // OK
         return new ResolveResult(
