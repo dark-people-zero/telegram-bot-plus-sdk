@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace DarkPeople\TelegramBot\Artisan;
 
 use DarkPeople\TelegramBot\Commands\Inspect\ConsoleCommandRegistry;
 use DarkPeople\TelegramBot\Support\ConsoleI18n;

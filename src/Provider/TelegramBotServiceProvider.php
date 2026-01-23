@@ -2,10 +2,10 @@
 
 namespace DarkPeople\TelegramBot\Provider;
 
-use App\Console\Commands\TelegramCacheClearCommand;
 use DarkPeople\TelegramBot\Artisan\MakeCommandCommand;
 use DarkPeople\TelegramBot\Artisan\MakeMiddlewareCommand;
 use DarkPeople\TelegramBot\Artisan\SyncCommand;
+use DarkPeople\TelegramBot\Artisan\TelegramCacheClearCommand;
 use DarkPeople\TelegramBot\Artisan\WebhookCommand;
 use DarkPeople\TelegramBot\BotsManagerPlus;
 use DarkPeople\TelegramBot\Commands\Compile\CommandConfigBuilder;
