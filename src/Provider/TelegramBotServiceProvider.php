@@ -2,6 +2,7 @@
 
 namespace DarkPeople\TelegramBot\Provider;
 
+use App\Console\Commands\TelegramCacheClearCommand;
 use DarkPeople\TelegramBot\Artisan\MakeCommandCommand;
 use DarkPeople\TelegramBot\Artisan\MakeMiddlewareCommand;
 use DarkPeople\TelegramBot\Artisan\SyncCommand;
@@ -97,6 +98,7 @@ final class TelegramBotServiceProvider extends ServiceProvider implements Deferr
                 SyncCommand::class,
                 MakeCommandCommand::class,
                 MakeMiddlewareCommand::class,
+                TelegramCacheClearCommand::class
             ]);
         }
     }
