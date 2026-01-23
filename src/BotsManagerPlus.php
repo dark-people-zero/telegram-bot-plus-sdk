@@ -100,8 +100,8 @@ final class BotsManagerPlus
         $interceptor = app(ReplyInterceptor::class);
 
         $handled = $interceptor->intercept($ctx);
-
-
+        if($handled) return;
+        
         $telegram->commandsHandler(true);
 
     }
