@@ -159,13 +159,13 @@ final class ConsoleHelpRenderer
         if(!$parentNode) {
             $lines[] = ConsoleI18n::get("help.root.title").":";
         } else {
-            $nm = $parent = $this->formatCommandName($parentNode);
+            $nm = $this->formatCommandName($parentNode);
             $lines[] = ConsoleI18n::get("help.group.title", ["cmd" => $nm]);
         }
         foreach ($nodes as $cmd) {
-            $parent = $this->formatCommandName($cmd);
-            $text = empty($parent) ? $cmd->name : "{$parent} {$cmd->name}";
-            $lines[] = "• `$text`";
+            $text = $this->formatCommandName($cmd);
+            // $text = empty($parent) ? $cmd->name : "{$parent} {$cmd->name}";
+            $lines[] = "• `/$text`";
             if ($cmd->description) $lines[] = "_{$cmd->description}_\n";
         }
         
@@ -223,7 +223,7 @@ final class ConsoleHelpRenderer
         $command = $this->getCommand($this->registry->nodes());
         $lines = array_merge($usage, $option, $command);
         
-        return implode("\n\n", $lines);
+        return implode("\n", $lines);
     }
 
     /**
@@ -239,7 +239,7 @@ final class ConsoleHelpRenderer
         $command = $this->getCommand($r->node->children, $r->node);
         $lines = array_merge($usage, $option, $command);
         
-        return implode("\n\n", $lines);
+        return implode("\n", $lines);
     }
 
     /**
@@ -261,7 +261,7 @@ final class ConsoleHelpRenderer
         $option = $this->getOpt($r);
         $lines = array_merge($desc, $usage, $args, $option);
         
-        return implode("\n\n", $lines);
+        return implode("\n", $lines);
     }
 
     /**

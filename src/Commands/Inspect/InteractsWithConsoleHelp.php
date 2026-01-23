@@ -66,7 +66,7 @@ trait InteractsWithConsoleHelp
 
         if ($message) {
             if (method_exists($this, 'replyWithMessage')) {
-                $this->replyWithMessage(['text' => $message]);
+                $this->replyWithMessage(['text' => $message, 'parse_mode' => 'Markdown']);
             }
         }
 

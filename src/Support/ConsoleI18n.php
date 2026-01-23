@@ -116,7 +116,7 @@ final class ConsoleI18n
      */
     private static function langPaths(): array
     {
-        $default = dirname(__DIR__, 2) . '/resources/lang/console';
+        $default = dirname(__DIR__, 1) . '/resources/lang/console';
 
         $custom = null;
         if (function_exists('config')) $custom = config('telegram.console.lang_path');

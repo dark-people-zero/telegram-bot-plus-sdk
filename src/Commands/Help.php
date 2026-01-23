@@ -13,7 +13,7 @@ final class Help extends PlusCommand
 {
     use InteractsWithConsoleHelp;
     protected string $name = 'help';
-    protected string $description = 'List all available commands';
+    protected string $description = 'Daftar semua perintah yang tersedia';
 
     /**
      * Handle menerima $arguments dari SDK,
@@ -27,7 +27,7 @@ final class Help extends PlusCommand
         $renderer = new ConsoleHelpRenderer($registry);
         $result = new ResolveResult(ResolveResult::SHOW_ROOT_HELP);
         
-        $this->replyWithMessage(['text' => $renderer->render($result)]);
+        $this->replyWithMessage(['text' => $renderer->render($result), 'parse_mode' => 'Markdown']);
         
     }
 
