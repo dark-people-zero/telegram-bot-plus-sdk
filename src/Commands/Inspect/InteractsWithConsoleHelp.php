@@ -65,7 +65,14 @@ trait InteractsWithConsoleHelp
         $message = $renderer->render($result);
 
         if ($message) {
-            $this->replyWithMessage(['text' => $message, 'parse_mode' => 'Markdown']);
+            // $this->replyWithMessage(['text' => $message, 'parse_mode' => 'Markdown']);
+            $chat = $update->getMessage()->get("chat", null);
+            if($chat) {
+                $chatId = $chat->get("id", null);
+                if ($chatId) {
+                    $telegram->sendMessage(['chat_id' => $chatId, 'text' => $message, 'parse_mode' => 'Markdown']);
+                }
+            }
         }
 
         return false;
