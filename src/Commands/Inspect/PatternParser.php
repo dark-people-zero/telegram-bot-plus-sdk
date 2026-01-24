@@ -121,7 +121,7 @@ final class PatternParser
 
             // cek mustHave (!)
             if (str_ends_with($name, '!')) {
-                $required = true;
+                $required = false;
                 $name = substr($name, 0, -1);
             }
 
