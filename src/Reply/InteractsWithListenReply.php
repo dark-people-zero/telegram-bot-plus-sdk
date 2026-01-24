@@ -56,11 +56,11 @@ trait InteractsWithListenReply
         $msg = $ctx->message;
         if (!is_object($msg)) return null;
 
-        $chat = method_exists($msg, 'getChat') ? $msg->getChat() : null;
-        $from = method_exists($msg, 'getFrom') ? $msg->getFrom() : null;
+        $chat = $msg->getChat();
+        $from = $msg->getFrom();
 
-        $chatId = is_object($chat) && method_exists($chat, 'getId') ? $chat->getId() : null;
-        $userId = is_object($from) && method_exists($from, 'getId') ? $from->getId() : null;
+        $chatId = $chat->getId();
+        $userId = $from->getId();
 
         if (!is_int($chatId) || !is_int($userId)) return null;
 
