@@ -58,7 +58,7 @@ final class ReplyInterceptor
             $update[$k]["text"] = "/$rebuilt";
             $update = new Update($update);
 
-            $this->dispatchByText($ctx->telegram, $ctx->update(), $rebuilt);
+            $this->dispatchByText($ctx->telegram, $update, $rebuilt);
             return true;
         }
 
@@ -146,9 +146,13 @@ final class ReplyInterceptor
             if (!str_starts_with($flag, '--')) {
                 $flag = '--' . ltrim($flag, '-');
             }
-
+            
             // append asked option as --opt=value
-            $optTokens[] = $flag . '=' . $reply;
+            $index = array_search($flag, $optTokens, true);
+            
+            if ($index >= 0) {
+                $optTokens[$index] = $flag . '=' . $reply;
+            }
         } else {
             // default: arg step
             $args[] = $reply;
