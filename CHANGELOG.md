@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [5.1.0] - 2026-01-25
+### Added
+
+- **ReplyInterceptor**: Added `isReply(TelegramContext $ctx): bool` to detect valid non-command replies based on pending reply scope.
+
+### Changed
+
+- **ConsoleCommandResolver::resolve**
+  - When a command token is not found under the current node, the resolver now attempts to suggest similar commands using `DidYouMeanSuggester`.
+  - Returns `SUGGEST` status when suggestions are available instead of always returning `NOT_FOUND`.
+- **ConsoleCommandResolver::splitCommandAndOptions**
+  - Added support for options prefixed with an em dash (`—`) and normalized them to standard double dash (`--`).
+- **ConsoleCommandResolver::validateOptions**
+  - Improved validation logic to clearly separate:
+    - `required` options (missing when the option key is not present)
+    - `mustHave` options (missing when the option is present but has no value)
+- **ConsoleHelpRenderer::render**
+  - The `NOT_FOUND` message now prefixes the requested command with / for clearer command feedback.
+- **ConsoleHelpRenderer::makeReplyPrompt**
+  - Reply prompt generation now derives the base command from the resolved command node instead of relying on the raw context command name.
+- **PatternParser::parser**
+  - Changed the semantic meaning of the `!` suffix in option patterns to indicate `mustHave` (value required) instead of altering the `required` flag.
+- **ReplyInterceptor::intercept**
+  - Inspector mode now rebuilds the update payload with a `/`-prefixed command text to ensure consistent command dispatching.
+
+### Fixed
+- Improved consistency in command resolution, option validation, and help rendering behavior.
+- Reduced false negatives when validating options with required values.
+
 ## [5.0.0] - 2026-01-24
 ### 🚨 Breaking Changes
 

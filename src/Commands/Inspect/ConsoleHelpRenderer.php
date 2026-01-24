@@ -39,7 +39,7 @@ final class ConsoleHelpRenderer
             ResolveResult::OK => ConsoleI18n::get("ok"),
 
             ResolveResult::NOT_FOUND => ConsoleI18n::get('cmd.not_found', [
-                'requested' => $r->requested ?? '',
+                'requested' => "/".$r->requested ?? '',
             ]),
 
             ResolveResult::SUGGEST => $this->renderSuggest($r),
@@ -350,8 +350,8 @@ final class ConsoleHelpRenderer
         $ttl = (int) config('telegram.console.listen_reply_ttl', 120);
         if ($ttl < 1) $ttl = 120;
 
-        $baseInput = is_string($ctx->commandName) && $ctx->commandName !== '' ? $ctx->commandName : null;
-        if ($baseInput === null) return null;
+        $baseInput = $this->formatCommandName($r->node);
+        if (empty(trim($baseInput))) return null;
 
         $next = null;
         $promptKey = null;

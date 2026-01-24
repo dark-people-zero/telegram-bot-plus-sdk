@@ -53,6 +53,11 @@ final class ReplyInterceptor
             $rebuilt = $this->buildInspectorCommand($pending, $text);
             if ($rebuilt === null) return false;
 
+            $update = $ctx->update()->toArray();
+            $k = array_key_last($update);
+            $update[$k]["text"] = "/$rebuilt";
+            $update = new Update($update);
+
             $this->dispatchByText($ctx->telegram, $ctx->update(), $rebuilt);
             return true;
         }
@@ -74,6 +79,19 @@ final class ReplyInterceptor
         }
 
         return false;
+    }
+
+    public function isReply(TelegramContext $ctx) : bool {
+        $text = is_string($ctx->text) ? trim($ctx->text) : null;
+        if ($text === null || $text === '' || $ctx->isCommand) return false;
+
+        $scope = $this->makeScope($ctx);
+        if ($scope === null) return false;
+
+        $pending = $this->store->get($scope);
+        if (!$pending) return false;
+
+        return true;
     }
 
     /**
@@ -170,7 +188,6 @@ final class ReplyInterceptor
 
         $commandClass::onReply($ctx, $payload);
     }
-
 
     private function extractCommandName(string $text): string
     {

@@ -95,14 +95,25 @@ final class ConsoleCommandResolver
                 // If node has NO children (dead-end group) but has arguments spec,
                 // treat it as leaf-ish target and stop; remaining tokens become args.
                 if (empty($node->children) && $this->expectsArgs($node)) break;
+                
+                $candidate = array_map(fn(CommandNode $e) => $e->name, $node->children);
+                $sugest = DidYouMeanSuggester::suggest($t, array_keys($candidate));
 
-                // otherwise: it's truly not found under this group
+                if(!empty($sugest)) {
+                    $idx = array_search($t, $parts, true);
+                    $prn = $idx === false ? [] : array_slice($parts, 0, $idx);
+                    $prn = implode(" ", $prn);
+                    $sugest = array_map(fn($e) => "$prn $e", $sugest);
+                }
+
                 return new ResolveResult(
-                    status: ResolveResult::NOT_FOUND,
+                    status: empty($sugest) ? ResolveResult::NOT_FOUND : ResolveResult::SUGGEST,
                     node: $node,
-                    requested: $parts[$consumed],
+                    requested: implode(" ", array_slice($parts, 0, $consumed+1)),
                     options: $options,
+                    suggest: $sugest
                 );
+                
             }
 
             // move
@@ -204,7 +215,8 @@ final class ConsoleCommandResolver
             $part = strtolower($part);
 
             // 4) option (tidak ikut split ':')
-            if (str_starts_with($part, '-')) {
+            if (str_starts_with($part, '-') || str_starts_with($part, "—")) {
+                $part = str_replace("—", "--", $part);
                 $options[] = $part;
                 continue;
             }
@@ -398,10 +410,15 @@ final class ConsoleCommandResolver
 
         $missing = [];
         foreach ($specs as $s) {
-            if (!$s->required) continue;
-
-            if (!isset($present[strtolower($s->long)]) || $s->mustHave && empty($s->val)) {
+            $presentKey = isset($present[strtolower($s->long)]);
+            if ($s->required && !$presentKey) {
                 $missing[] = $s->long;
+                continue;
+            }
+
+            if ($s->mustHave && $presentKey && empty($s->val)) {
+                $missing[] = $s->long;
+                continue;
             }
         }
 

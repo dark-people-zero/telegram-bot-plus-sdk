@@ -2,7 +2,7 @@
 
 return [
     'cmd' => [
-        'not_found' => "Perintah tidak ditemukan: `{requested}`",
+        'not_found' => "Perintah `{requested}` tidak ditemukan",
         'did_you_mean' => "Mungkin maksud kamu: {suggest}?",
         'try_help' => "Coba: `{cmd} --help`",
     ],

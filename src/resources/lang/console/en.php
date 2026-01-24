@@ -2,7 +2,7 @@
 
 return [
     'cmd' => [
-        'not_found' => "Command not found: `{requested}`",
+        'not_found' => "Command `{requested}` not found`",
         'did_you_mean' => "Did you mean: {suggest}?",
         'try_help' => "Try: `{cmd} --help`",
     ],
