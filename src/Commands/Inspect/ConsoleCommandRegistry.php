@@ -177,7 +177,7 @@ final class ConsoleCommandRegistry
         if (method_exists($cmd, "getPromptValue")) $promptValue = $cmd->getPromptValue() ?? [];
 
         $promptVarible = [];
-        if (method_exists($cmd, "getPromptVarible")) $promptValue = $cmd->getPromptVarible() ?? [];
+        if (method_exists($cmd, "getPromptVarible")) $promptVarible = $cmd->getPromptVarible() ?? [];
             
 
         [$incomingRoot, $incomingLeaf] = $this->buildChainFromNames(
@@ -253,7 +253,7 @@ final class ConsoleCommandRegistry
                 options: $isLeaf ? ($leafMeta['options'] ?? []) : [],
                 children: [],
                 promptValue: $leafMeta['promptValue'] ?? [],
-                promptVarible: $leafMeta['promptValue'] ?? [],
+                promptVarible: $leafMeta['promptVarible'] ?? [],
             );
 
             if ($prev) {
