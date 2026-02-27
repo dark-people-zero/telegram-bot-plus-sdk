@@ -23,7 +23,9 @@ final class ConsoleHelpRenderer
     /**
      * @param ConsoleCommandRegistry $registry Command registry (for global options and root commands).
      */
-    public function __construct(private ConsoleCommandRegistry $registry) {}
+    public function __construct(private ConsoleCommandRegistry $registry)
+    {
+    }
 
     /**
      * Render the given resolve result into Markdown.
@@ -34,12 +36,12 @@ final class ConsoleHelpRenderer
     public function render(ResolveResult $r): ?string
     {
         $ctx = app(TelegramContext::class);
-        
+
         return match ($r->status) {
             ResolveResult::OK => ConsoleI18n::get("ok"),
 
             ResolveResult::NOT_FOUND => ConsoleI18n::get('cmd.not_found', [
-                'requested' => "/".$r->requested ?? '',
+                'requested' => "/" . $r->requested ?? '',
             ]),
 
             ResolveResult::SUGGEST => $this->renderSuggest($r),
@@ -66,11 +68,11 @@ final class ConsoleHelpRenderer
      * @param ResolveResult $r
      * @return array<int, string> Markdown lines.
      */
-    private function getDesc(ResolveResult $r) : array
+    private function getDesc(ResolveResult $r): array
     {
         $lines = [];
         $lines[] = ConsoleI18n::get("help.description");
-        if(!empty($r->node->description)) {
+        if (!empty($r->node->description)) {
             $lines[] = "_{$this->escapeTelegramMarkdown($r->node->description)}_\n";
             return $lines;
         }
@@ -87,12 +89,12 @@ final class ConsoleHelpRenderer
      * @param string|null $text Custom usage text.
      * @return array<int, string> Markdown lines.
      */
-    private function getUsage(ResolveResult $r, ?string $text = null) : array
+    private function getUsage(ResolveResult $r, ?string $text = null): array
     {
         $lines = [];
         $lines[] = ConsoleI18n::get("help.usage");
-        if(!empty($text)) {
-            $lines[] = "_{$this->escapeTelegramMarkdown($text)}_\n";
+        if (!empty($text)) {
+            $lines[] = "`{$text}`\n";
             return $lines;
         }
 
@@ -107,14 +109,15 @@ final class ConsoleHelpRenderer
      * @param ResolveResult $r
      * @return array<int, string> Markdown lines.
      */
-    private function getArg(ResolveResult $r) : array
+    private function getArg(ResolveResult $r): array
     {
         $lines = [];
         $lines[] = ConsoleI18n::get("help.args");
-        if(!empty($r->node->arguments)) {
+        if (!empty($r->node->arguments)) {
             foreach ($r->node->arguments as $args) {
-                $lines[] = "• *`{$this->escapeTelegramMarkdown($args->name)}`*";
-                if ($args->description) $lines[] = "_{$this->escapeTelegramMarkdown($args->description)}_\n";
+                $lines[] = "• *`{$args->name}`*";
+                if ($args->description)
+                    $lines[] = "_{$this->escapeTelegramMarkdown($args->description)}_\n";
             }
         }
 
@@ -127,7 +130,7 @@ final class ConsoleHelpRenderer
      * @param ResolveResult $r
      * @return array<int, string> Markdown lines.
      */
-    private function getOpt(ResolveResult $r) : array
+    private function getOpt(ResolveResult $r): array
     {
         $lines = [];
         $lines[] = ConsoleI18n::get("help.opts");
@@ -136,7 +139,8 @@ final class ConsoleHelpRenderer
         foreach ($options as $opt) {
             $flag = $opt->short ? "{$opt->short}, {$opt->long}" : $opt->long;
             $lines[] = "• `{$flag}`";
-            if ($opt->description) $lines[] = "_{$this->escapeTelegramMarkdown($opt->description)}_\n";
+            if ($opt->description)
+                $lines[] = "_{$this->escapeTelegramMarkdown($opt->description)}_\n";
         }
 
         return count($lines) > 1 ? $lines : [];
@@ -151,14 +155,14 @@ final class ConsoleHelpRenderer
      * @param CommandNode|null $parentNode Parent node context for group rendering.
      * @return array<int, string> Markdown lines.
      */
-    private function getCommand(array $nodes, CommandNode $parentNode = null) : array
+    private function getCommand(array $nodes, CommandNode $parentNode = null): array
     {
-        $nodes = array_filter($nodes, function(CommandNode $n) {
+        $nodes = array_filter($nodes, function (CommandNode $n) {
             return CommandAuthorization::authorizeCommand($n);
         });
         $lines = [];
-        if(!$parentNode) {
-            $lines[] = ConsoleI18n::get("help.root.title").":";
+        if (!$parentNode) {
+            $lines[] = ConsoleI18n::get("help.root.title") . ":";
         } else {
             $nm = $this->formatCommandName($parentNode);
             $lines[] = ConsoleI18n::get("help.group.title", ["cmd" => $nm]);
@@ -166,9 +170,10 @@ final class ConsoleHelpRenderer
         foreach ($nodes as $cmd) {
             $text = $this->formatCommandName($cmd);
             $lines[] = "• `/$text`";
-            if ($cmd->description) $lines[] = "_{$this->escapeTelegramMarkdown($cmd->description)}_\n";
+            if ($cmd->description)
+                $lines[] = "_{$this->escapeTelegramMarkdown($cmd->description)}_\n";
         }
-        
+
         return $lines;
     }
 
@@ -183,7 +188,8 @@ final class ConsoleHelpRenderer
      */
     private function formatCommandName(?CommandNode $node): string
     {
-        if (!$node) return '';
+        if (!$node)
+            return '';
         $parts = [];
         $cur = $node;
         while ($cur) {
@@ -201,11 +207,12 @@ final class ConsoleHelpRenderer
      */
     private function renderSuggest(ResolveResult $r): string
     {
-        $base = ConsoleI18n::get('cmd.not_found', ['requested' => "/".$r->requested ?? '']);
-        if (empty($r->suggest)) return $base;
+        $base = ConsoleI18n::get('cmd.not_found', ['requested' => "/" . $r->requested ?? '']);
+        if (empty($r->suggest))
+            return $base;
 
         $suggest = implode("\n", array_map(fn($s) => "• `/{$s}`", $r->suggest));
-        $line2 = ConsoleI18n::get('cmd.did_you_mean', ['suggest' => "\n".$suggest]);
+        $line2 = ConsoleI18n::get('cmd.did_you_mean', ['suggest' => "\n" . $suggest]);
 
         return "$base\n\n$line2";
     }
@@ -222,7 +229,7 @@ final class ConsoleHelpRenderer
         $option = $this->getOpt($r);
         $command = $this->getCommand($this->registry->nodes());
         $lines = array_merge($usage, $option, $command);
-        
+
         return implode("\n", $lines);
     }
 
@@ -238,7 +245,7 @@ final class ConsoleHelpRenderer
         $option = $this->getOpt($r);
         $command = $this->getCommand($r->node->children, $r->node);
         $lines = array_merge($usage, $option, $command);
-        
+
         return implode("\n", $lines);
     }
 
@@ -254,7 +261,7 @@ final class ConsoleHelpRenderer
 
         $options = array_filter($r->node->options, fn(OptionSpec $e) => $e->short != '-h');
         $cmd = $this->formatCommandName($r->node);
-        $argsT = $r->node->arguments ? implode(' ', array_map(fn($a) => $a->required ? "<{$this->escapeTelegramMarkdown($a->name)}>" : "[{$this->escapeTelegramMarkdown($a->name)}]", $r->node->arguments)) : "";
+        $argsT = $r->node->arguments ? implode(' ', array_map(fn($a) => $a->required ? "<{$a->name}>" : "[{$a->name}]", $r->node->arguments)) : "";
         $optT = !empty($options) ? '[options]' : "";
         $usage = $this->getUsage($r, "/{$cmd} {$argsT} {$optT}");
 
@@ -278,7 +285,8 @@ final class ConsoleHelpRenderer
     private function renderMissingArgs(ResolveResult $r, TelegramContext $ctx): ?string
     {
         $prompt = $this->makeReplyPrompt($r, $ctx);
-        if (is_string($prompt) && trim($prompt) !== '') return $prompt;
+        if (is_string($prompt) && trim($prompt) !== '')
+            return $prompt;
 
         $cmd = $this->formatCommandName($r->node);
         $items = implode(', ', array_map(fn($x) => "`{$x}`", $r->missingArgs));
@@ -344,13 +352,16 @@ final class ConsoleHelpRenderer
         }
 
         $scope = $this->makeScopeFromContext($ctx);
-        if ($scope === null) return null;
+        if ($scope === null)
+            return null;
 
         $ttl = (int) config('telegram.console.listen_reply_ttl', 120);
-        if ($ttl < 1) $ttl = 120;
+        if ($ttl < 1)
+            $ttl = 120;
 
         $baseInput = $this->formatCommandName($r->node);
-        if (empty(trim($baseInput))) return null;
+        if (empty(trim($baseInput)))
+            return null;
 
         $next = null;
         $promptKey = null;
@@ -358,7 +369,8 @@ final class ConsoleHelpRenderer
 
         if ($r->status === ResolveResult::MISSING_ARGUMENT) {
             $name = $r->missingArgs[0] ?? null;
-            if (!is_string($name) || $name === '') return null;
+            if (!is_string($name) || $name === '')
+                return null;
 
             $next = ['type' => 'arg', 'name' => $name];
             $promptKey = $name;
@@ -367,14 +379,16 @@ final class ConsoleHelpRenderer
 
         if ($r->status === ResolveResult::MISSING_OPTION) {
             $opt = $r->missingOptions[0] ?? null;
-            if (!is_string($opt) || $opt === '') return null;
+            if (!is_string($opt) || $opt === '')
+                return null;
 
             $next = ['type' => 'opt', 'name' => $opt];
             $promptKey = ltrim($opt, '-');
             $type = 'option';
         }
 
-        if ($next === null || $promptKey === null || $type === null) return null;
+        if ($next === null || $promptKey === null || $type === null)
+            return null;
 
         $pending = new PendingReply(
             mode: PendingReply::MODE_INSPECTOR,
@@ -447,12 +461,13 @@ final class ConsoleHelpRenderer
     private function renderMissingOptions(ResolveResult $r, TelegramContext $ctx): string
     {
         $prompt = $this->makeReplyPrompt($r, $ctx);
-        if (is_string($prompt) && trim($prompt) !== '') return $prompt;
+        if (is_string($prompt) && trim($prompt) !== '')
+            return $prompt;
 
         $cmd = $this->formatCommandName($r->node);
         $items = implode("\n", array_map(fn($x) => "• `{$x}`", $r->missingOptions));
 
-        return ConsoleI18n::get('opt.missing', ['items' => "\n".$items])
+        return ConsoleI18n::get('opt.missing', ['items' => "\n" . $items])
             . "\n\n"
             . ConsoleI18n::get('cmd.try_help', ['cmd' => "/$cmd"]);
     }
@@ -481,13 +496,14 @@ final class ConsoleHelpRenderer
      */
     private function renderUnauthorize(ResolveResult $r): string
     {
-        return ConsoleI18n::get('unauthorize.title'). "\n\n" . ConsoleI18n::get('unauthorize.message');
+        return ConsoleI18n::get('unauthorize.title') . "\n\n" . ConsoleI18n::get('unauthorize.message');
     }
 
     private function makeScopeFromContext(TelegramContext $ctx): ?string
     {
         $msg = $ctx->message;
-        if (!is_object($msg)) return null;
+        if (!is_object($msg))
+            return null;
 
         $chat = $msg->getChat();
         $from = $msg->getFrom();
@@ -495,7 +511,8 @@ final class ConsoleHelpRenderer
         $chatId = $chat->getId();
         $userId = $from->getId();
 
-        if (!is_int($chatId) || !is_int($userId)) return null;
+        if (!is_int($chatId) || !is_int($userId))
+            return null;
 
         return "chat:{$chatId}:user:{$userId}";
     }
