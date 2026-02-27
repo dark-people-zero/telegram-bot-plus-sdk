@@ -115,7 +115,7 @@ final class ConsoleHelpRenderer
         $lines[] = ConsoleI18n::get("help.args");
         if (!empty($r->node->arguments)) {
             foreach ($r->node->arguments as $args) {
-                $lines[] = "• *`{$args->name}`*";
+                $lines[] = "• *{$this->escapeTelegramMarkdown($args->name)}*";
                 if ($args->description)
                     $lines[] = "_{$this->escapeTelegramMarkdown($args->description)}_\n";
             }
